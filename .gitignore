@@ -1,1 +1,4 @@
 *.xlsx
+*.spec
+Inspection_plan/build/*
+Inspection_plan/dist/*

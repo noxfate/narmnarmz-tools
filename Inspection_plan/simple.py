@@ -3,6 +3,7 @@ import tkFileDialog
 import os
 import openpyxl
 import itertools
+import easygui
 from openpyxl.utils import get_column_letter
 from common import *
 
@@ -13,6 +14,8 @@ def main():
     data = openExcelFile(filePath)
     simple_inspection_structure = configFileStructure()
     newSimpleInspectionPlanExcel(simple_inspection_structure, data)
+    easygui.msgbox("Your output is output_upload.xlsx, which is in the same directory that your selected file. \n\nGood luck, have fun!!", title="Success!")
+
 
 def newSimpleInspectionPlanExcel(structure, datamodelwb):
     wb = openpyxl.Workbook()
