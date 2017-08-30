@@ -14,17 +14,20 @@ def main():
     # filePath = "D:/project/narmnarmz-tools/resource/EXM_QM12_Inspection Plan.xlsx"
     start_time = time.time()
     try:
-        data = openExcelFile(filePath)
+        data = openExcelFile(filePath)        
         simple_inspection_structure = configFileStructure()
-        newSimpleInspectionPlanExcel(simple_inspection_structure, data)
+        output_filename = composeFileName(filePath)
+        newSimpleInspectionPlanExcel(simple_inspection_structure, data, output_filename)
         print("--- %s seconds ---" % (time.time() - start_time))
         easygui.msgbox("Your output is output_upload.xlsx, which is in the same directory that your selected file. \n\nGood luck, have fun!!\n\nExecutime (s): "+str((time.time() - start_time)), title="Success!")
     except:
         print("Unexpected error:", sys.exc_info()[0])
         easygui.msgbox("Unexpected error:", sys.exc_info()[0])
 
+def composeFileName(fileFullPath):
+    return "UPL_"+os.path.basename(fileFullPath)
 
-def newSimpleInspectionPlanExcel(structure, datamodelwb):
+def newSimpleInspectionPlanExcel(structure, datamodelwb, fileName):
     wb = openpyxl.Workbook()
     old_sheet_list = wb.get_sheet_names()
     for i in structure:
@@ -44,8 +47,11 @@ def newSimpleInspectionPlanExcel(structure, datamodelwb):
     buildOperationWorksheet(wb, datamodelwb)
     print("....Start Building INSPCHARACTERISTIC....")
     buildInspcharacteristicWorksheet(wb, datamodelwb)
+    print("....Start Building INSP_CHAR_VALUES....")
+    buildInspCharValues(wb, datamodelwb)
     print("....Finish Building....")
-    wb.save("output_upload.xlsx")
+    print("Output: ", fileName)
+    wb.save(fileName)
                 
 def configFileStructure():
     output_sheets = [
@@ -319,7 +325,158 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
                 task_ws[col+str(i)] = found_data
             elif j == 33:
-                task_ws[col+str(i)] = "X"
+                letter = findColumnLetterByValueAndRow(data_ws, "Sampling Procedure", 1)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                if (found_data is None) or (found_data == ""):                    
+                    task_ws[col+str(i)] = "X"
+                else:
+                    task_ws[col+str(i)] = found_data
+            elif j == 39:
+                letter = findColumnLetterByValueAndRow(data_ws, "SPC Criterion", 1)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                if (found_data is None) or (found_data == ""):                    
+                    task_ws[col+str(i)] = "X"
+                else:
+                    task_ws[col+str(i)] = found_data
+            elif j == 40:   
+                letter = findColumnLetterByValueAndRow(data_ws, "PRINT_IND", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 43:   
+                letter = findColumnLetterByValueAndRow(data_ws, "INSPECTOR_QUALIF", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 51:   
+                letter = findColumnLetterByValueAndRow(data_ws, "DEC_PLACES", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 52:   
+                letter = findColumnLetterByValueAndRow(data_ws, "MEAS_UNIT", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 54:   
+                letter = findColumnLetterByValueAndRow(data_ws, "SOLLWERT", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 55:   
+                letter = findColumnLetterByValueAndRow(data_ws, "TOLERANZUN", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 56:   
+                letter = findColumnLetterByValueAndRow(data_ws, "TOLERANZOB", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            
+            elif j == 66:   
+                letter = findColumnLetterByValueAndRow(data_ws, "FORMULA_IND", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 67:   
+                letter = findColumnLetterByValueAndRow(data_ws, "FORMEL1", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 68:   
+                letter = findColumnLetterByValueAndRow(data_ws, "FORMEL2", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 69:   
+                letter = findColumnLetterByValueAndRow(data_ws, "AUSWMENGE1", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 70:   
+                letter = findColumnLetterByValueAndRow(data_ws, "QWERKAUSW", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 71:   
+                letter = findColumnLetterByValueAndRow(data_ws, "", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                if (found_data is None) or (found_data == ""):
+                    task_ws[col+str(i)] = "1"
+                else:
+                    task_ws[col+str(i)] = found_data       
+            elif j == 89:   
+                letter = findColumnLetterByValueAndRow(data_ws, "SPC_CRITERION_KEY", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data         
 
+def buildInspCharValues(wb, dataWb):
+    ## CONFIG HERE NA N'Narm ##
+    DATA_TAB_NAME = "05 - Denp. Char." # sheet name to find data
+    DATA_ROW_COUNT = 2 # how many row to skip in header
+    DATA_HEADER_ROW = 2 # what row to find by field
+    ROW_START = 2 # row to start writing data
+    IS_FREEZE = True # wanna freeze header ?
 
+    task_ws = wb.get_sheet_by_name("INSP_CHAR_VALUES")
+    if (IS_FREEZE):
+        task_ws.freeze_panes = "A"+ str(ROW_START)
+    data_ws = dataWb.get_sheet_by_name(DATA_TAB_NAME)
+    n_of_data = data_ws.max_row - DATA_ROW_COUNT
+    for i in range(ROW_START, n_of_data + ROW_START): # ROW LOOP in TASK WORKSHEET by n(data)
+        for j in range(1, task_ws.max_column+1): #COLUMN LOOP in TASK WORKSHEET by column template
+            col = get_column_letter(j)
+            if j == 1: # A
+                letter = findColumnLetterByValueAndRow(data_ws, "PLNNR", DATA_HEADER_ROW)
+                found_data = data_ws[letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 2: # B
+                letter = findColumnLetterByValueAndRow(data_ws, "PLNAL", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 4:
+                letter = findColumnLetterByValueAndRow(data_ws, "VORNR", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 5:
+                letter = findColumnLetterByValueAndRow(data_ws, "MERKNR", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 6:
+                letter = findColumnLetterByValueAndRow(data_ws, "ZUORDNR", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 11:
+                letter = findColumnLetterByValueAndRow(data_ws, "MATNR", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 12:
+                letter = findColumnLetterByValueAndRow(data_ws, "WERKS_A", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 13:
+                letter = findColumnLetterByValueAndRow(data_ws, "LIFNR", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 17:
+                letter = findColumnLetterByValueAndRow(data_ws, "DEC_PLACES", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 18:
+                letter = findColumnLetterByValueAndRow(data_ws, "MEAS_UNIT", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 20:
+                letter = findColumnLetterByValueAndRow(data_ws, "SOLLWERT", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 21:
+                letter = findColumnLetterByValueAndRow(data_ws, "TOLERANZOB", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 22:
+                letter = findColumnLetterByValueAndRow(data_ws, "TOLERANZUN", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 32:
+                letter = findColumnLetterByValueAndRow(data_ws, "AUSWMENGE1", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 33:
+                letter = findColumnLetterByValueAndRow(data_ws, "QWERKAUSW", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 34:
+                letter = findColumnLetterByValueAndRow(data_ws, "", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
 main()
