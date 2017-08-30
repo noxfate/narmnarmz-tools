@@ -94,10 +94,8 @@ def buildTaskWorksheet(wb, dataWb):
                 letter = findColumnLetterByValueAndRow(data_ws, "WERKS", DATA_HEADER_ROW)
                 found_data = data_ws[letter+ str(DATA_ROW_COUNT+i-1)].value
                 task_ws[col+str(i)] = found_data
-            elif j == 10: # J
-                letter = findColumnLetterByValueAndRow(data_ws, "STATU", DATA_HEADER_ROW)
-                found_data = data_ws[letter+ str(DATA_ROW_COUNT+i-1)].value
-                task_ws[col+str(i)] = found_data
+            elif j == 10: # J        
+                task_ws[col+str(i)] = "4"
             elif j == 11: # K
                 letter = findColumnLetterByValueAndRow(data_ws, "MEINH_H", DATA_HEADER_ROW)
                 found_data = data_ws[letter+ str(DATA_ROW_COUNT+i-1)].value
@@ -110,8 +108,6 @@ def buildTaskWorksheet(wb, dataWb):
                 letter = findColumnLetterByValueAndRow(data_ws, "KTEXT", DATA_HEADER_ROW)
                 found_data = data_ws[letter+ str(DATA_ROW_COUNT+i-1)].value
                 task_ws[col+str(i)] = found_data
-            elif j == 17:
-                task_ws[col+str(i)] = "FARM1/1"
             elif j == 24:
                 letter = findColumnLetterByValueAndRow(data_ws, "QPRZIEHVER", DATA_HEADER_ROW)
                 found_data = data_ws[letter+ str(DATA_ROW_COUNT+i-1)].value
