@@ -19,7 +19,7 @@ def main():
         output_filename = composeFileName(filePath)
         newSimpleInspectionPlanExcel(simple_inspection_structure, data, output_filename)
         print("--- %s seconds ---" % (time.time() - start_time))
-        easygui.msgbox("Your output is output_upload.xlsx, which is in the same directory that your selected file. \n\nGood luck, have fun!!\n\nExecutime (s): "+str((time.time() - start_time)), title="Success!")
+        easygui.msgbox("Your output is "+output_filename+", which is in the same directory that your selected file. \n\nGood luck, have fun!!\n\nExecutime (s): "+str((time.time() - start_time)), title="Success!")
     except:
         print("Unexpected error:", sys.exc_info()[0])
         easygui.msgbox("Unexpected error:", sys.exc_info()[0])
