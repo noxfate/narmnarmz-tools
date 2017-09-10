@@ -7,6 +7,7 @@ import easygui
 import time
 from openpyxl.utils import get_column_letter
 from common import *
+import sys
 
 def main():
     filePath = openDialog()
@@ -486,4 +487,5 @@ def buildInspCharValues(wb, dataWb):
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
                 if (found_data is not None) or (found_data != ""):                    
                     task_ws[col+str(i)] = "1"
+
 main()
