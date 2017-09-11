@@ -1,6 +1,6 @@
 *.xlsx
-*.pyc
 !unit.xlsx
 *.spec
+*.pyc
 Inspection_plan/build/*
 Inspection_plan/dist/*
