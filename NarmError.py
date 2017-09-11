@@ -1,0 +1,2 @@
+class UnitConversionError(Exception):
+    pass
