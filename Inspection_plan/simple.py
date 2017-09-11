@@ -332,12 +332,12 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 33:
                 letter = findColumnLetterByValueAndRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if not found_data.strip():                    
+                if (found_data is not None) and (not found_data.strip()):                    
                     task_ws[col+str(i)] = "X"
             elif j == 39:
                 letter = findColumnLetterByValueAndRow(data_ws, "SPC_CRITERION_KEY", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if not found_data.strip():                    
+                if (found_data is not None) and (not found_data.strip()):                    
                     task_ws[col+str(i)] = "X"
             elif j == 40:   
                 letter = findColumnLetterByValueAndRow(data_ws, "PRINT_IND", DATA_HEADER_ROW)
@@ -390,7 +390,7 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 71:   
                 letter = findColumnLetterByValueAndRow(data_ws, "AUSWMENGE1", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if not found_data.strip():
+                if (found_data is not None) and (not found_data.strip()):                    
                     task_ws[col+str(i)] = "1"    
             elif j == 86:   
                 letter = findColumnLetterByValueAndRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
@@ -403,7 +403,7 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 88:   
                 letter = findColumnLetterByValueAndRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if not found_data.strip():
+                if (found_data is not None) and (not found_data.strip()):                    
                     task_ws[col+str(i)] = "1"   
             elif j == 89:   
                 letter = findColumnLetterByValueAndRow(data_ws, "SPC_CRITERION_KEY", DATA_HEADER_ROW)
@@ -489,7 +489,7 @@ def buildInspCharValues(wb, dataWb):
             elif j == 34:
                 letter = findColumnLetterByValueAndRow(data_ws, "AUSWMENGE1", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if not found_data.strip():                    
+                if (found_data is not None) and (not found_data.strip()):                    
                     task_ws[col+str(i)] = "1"
 
 main()
