@@ -7,23 +7,27 @@ import easygui
 import time
 from openpyxl.utils import get_column_letter
 from common import *
-import sys
+import sys, traceback
 
 def main():
-    filePath = openDialog()
+    # filePath = openDialog()
     # wb = openExcelFile(fileName)
-    # filePath = "D:/project/narmnarmz-tools/resource/EXM_QM12_Inspection Plan.xlsx"
+    filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
     start_time = time.time()
     try:
-        data = openExcelFile(filePath)        
         simple_inspection_structure = configFileStructure()
+        data = openExcelFile(filePath)        
         output_filename = composeFileName(filePath)
         newSimpleInspectionPlanExcel(simple_inspection_structure, data, output_filename)
         print("--- %s seconds ---" % (time.time() - start_time))
         easygui.msgbox("Your output is "+output_filename+", which is in the same directory that your selected file. \n\nGood luck, have fun!!\n\nExecutime (s): "+str((time.time() - start_time)), title="Success!")
+    except TypeError:
+        err = traceback.format_exc()
+        easygui.msgbox("TypeError: Maybe this happen because the program can't find field in Excel\n\n"+str(err))
     except:
-        print("Unexpected error:", sys.exc_info()[0])
-        easygui.msgbox("Unexpected error:", sys.exc_info()[0])
+        err = traceback.format_exc()
+        # print(err)
+        easygui.msgbox("Unexpected Error: "+str(err))
 
 def composeFileName(fileFullPath):
     return "UPL_"+os.path.basename(fileFullPath)
@@ -328,12 +332,12 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 33:
                 letter = findColumnLetterByValueAndRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if (found_data is not None) or (found_data != ""):                    
+                if not found_data.strip():                    
                     task_ws[col+str(i)] = "X"
             elif j == 39:
                 letter = findColumnLetterByValueAndRow(data_ws, "SPC_CRITERION_KEY", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if (found_data is not None) or (found_data != ""):                    
+                if not found_data.strip():                    
                     task_ws[col+str(i)] = "X"
             elif j == 40:   
                 letter = findColumnLetterByValueAndRow(data_ws, "PRINT_IND", DATA_HEADER_ROW)
@@ -386,7 +390,7 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 71:   
                 letter = findColumnLetterByValueAndRow(data_ws, "AUSWMENGE1", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if (found_data is not None) or (found_data != ""):
+                if not found_data.strip():
                     task_ws[col+str(i)] = "1"    
             elif j == 86:   
                 letter = findColumnLetterByValueAndRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
@@ -399,7 +403,7 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 88:   
                 letter = findColumnLetterByValueAndRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if (found_data is not None) or (found_data != ""):
+                if not found_data.strip():
                     task_ws[col+str(i)] = "1"   
             elif j == 89:   
                 letter = findColumnLetterByValueAndRow(data_ws, "SPC_CRITERION_KEY", DATA_HEADER_ROW)
@@ -485,7 +489,7 @@ def buildInspCharValues(wb, dataWb):
             elif j == 34:
                 letter = findColumnLetterByValueAndRow(data_ws, "AUSWMENGE1", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                if (found_data is not None) or (found_data != ""):                    
+                if not found_data.strip():                    
                     task_ws[col+str(i)] = "1"
 
 main()

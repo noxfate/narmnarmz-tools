@@ -22,3 +22,6 @@ def findColumnLetterByValueAndRow(worksheet, value, rowNumber):
         text = worksheet[get_column_letter(i)+str(rowNumber)].value
         if (text == value):
             return get_column_letter(i)
+
+# def tranformUnit(input):
+    
