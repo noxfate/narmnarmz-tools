@@ -125,8 +125,7 @@ def buildTaskWorksheet(wb, dataWb):
             elif j == 11: # K
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "MEINH_H", DATA_HEADER_ROW)
                 found_data = data_ws[letter+ str(DATA_ROW_COUNT+i-1)].value
-                trans_data = transformUnit(found_data).value
-                task_ws[col+str(i)] = trans_data
+                task_ws[col+str(i)] = transformUnit(found_data)
             elif j == 13:
                 task_ws[col+str(i)] = "1"
             elif j == 14:
@@ -236,8 +235,7 @@ def buildOperationWorksheet(wb, dataWb):
             elif j == 23:
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "MEINH", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                trans_data = transformUnit(found_data).value
-                task_ws[col+str(i)] = trans_data
+                task_ws[col+str(i)] = transformUnit(found_data)
 
 def buildInspcharacteristicWorksheet(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
@@ -358,8 +356,7 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 52:   
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "MEAS_UNIT", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                trans_data = transformUnit(found_data).value
-                task_ws[col+str(i)] = trans_data
+                task_ws[col+str(i)] = transformUnit(found_data)
             elif j == 54:   
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "SOLLWERT", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
@@ -404,8 +401,7 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 86:   
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "PROBEMGEH", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                trans_data = transformUnit(found_data).value
-                task_ws[col+str(i)] = trans_data
+                task_ws[col+str(i)] = transformUnit(found_data)
             elif j == 88:   
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
@@ -471,8 +467,7 @@ def buildInspCharValues(wb, dataWb):
             elif j == 18:
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "MEAS_UNIT", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                trans_data = transformUnit(found_data).value
-                task_ws[col+str(i)] = trans_data
+                task_ws[col+str(i)] = transformUnit(found_data)
             elif j == 20:
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "SOLLWERT", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value

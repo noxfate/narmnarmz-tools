@@ -36,7 +36,7 @@ def findCellInColumnByValue(worksheet, col, value, headerRow):
     for i in range(headerRow+1, worksheet.max_row+headerRow+1):
         cell_val = worksheet[col_letter+str(i)].value
         if (cell_val is not None) and (cell_val == value):
-            return worksheet[col_letter+str(i)]
+            return worksheet[col_letter+str(i)].value
     raise UnitConversionError("UnitConversion Error: ", worksheet, col, value)
 
 def transformUnit(input):
