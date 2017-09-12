@@ -10,9 +10,9 @@ from common import *
 import sys, traceback
 
 def run():
-    # filePath = openDialog()
+    filePath = openDialog()
     # wb = openExcelFile(fileName)
-    filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
+    # filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
     start_time = time.time()
     try:
         simple_inspection_structure = configFileStructure()
