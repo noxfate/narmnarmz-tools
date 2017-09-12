@@ -31,6 +31,8 @@ def findColumnLetterByColNameAndStartRow(worksheet, value, rowNumber):
 
 def findCellInColumnByValue(worksheet, col, value, headerRow):
     col_letter = findColumnLetterByColNameAndStartRow(worksheet, col, headerRow)
+    if value is None:
+        return ""
     for i in range(headerRow+1, worksheet.max_row+headerRow+1):
         cell_val = worksheet[col_letter+str(i)].value
         if (cell_val is not None) and (cell_val == value):
