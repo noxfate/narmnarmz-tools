@@ -387,6 +387,18 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "INSPECTOR_QUALIF", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
                 task_ws[col+str(i)] = found_data
+            elif j == 44:   
+                letter = findColumnLetterByColNameAndStartRow(data_ws, "DUMMY10", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 45:   
+                letter = findColumnLetterByColNameAndStartRow(data_ws, "DUMMY20", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
+            elif j == 46:   
+                letter = findColumnLetterByColNameAndStartRow(data_ws, "DUMMY40", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
             elif j == 51:   
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "DEC_PLACES", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
