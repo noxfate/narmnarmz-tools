@@ -259,23 +259,21 @@ def buildOperationWorksheet(wb, dataWb):
                 in_header_data_plnnr_row_list = set()
                 for n in in_header_data_plnnr_list:
                     in_header_data_plnnr_row_list.add(n.row)
-                # print(len(in_header_data_plnnr_row_list))
 
-                # +++++++++ TODO: ++++++++++++++++++++++++++
                 in_header_data_plnal_list = findCellListInColumnByValue(other_ws, "PLNAL", found_data_plnal, 2)
                 in_header_data_plnal_row_list = set()
-                for n in in_header_data_plnal_row_list:
+                for n in in_header_data_plnal_list:
                     in_header_data_plnal_row_list.add(n.row)
-                print(len(in_header_data_plnal_row_list))
+
                 same_row = set(in_header_data_plnnr_row_list) & set(in_header_data_plnal_row_list)
-                # print(len(same_row))
-                # if len(same_row) > 0:
-                #     if in_header_data_plnal.row == in_header_data_plnnr.row:
-                #         data_slwbez = other_ws[header_SLWBEZ_letter+ str(in_header_data_plnnr.row)]
-                #         if (data_slwbez is not None):
-                #             task_ws[col+str(i)] = "2"
-                # if (found_data_plnnr is not None) and (found_data_plnal is not None) and (found_data_slwbez is not None):                    
-                #     task_ws[col+str(i)] = "2"
+                print(same_row)
+                if len(same_row) == 1:
+                    for n in same_row:
+                         data_slwbez = other_ws[header_SLWBEZ_letter+ str(n)].value
+                         print(data_slwbez)
+                         if (data_slwbez is not None):
+                            task_ws[col+str(i)] = "2"
+                            break
 
 def buildInspcharacteristicWorksheet(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
