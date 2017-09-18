@@ -240,6 +240,12 @@ def buildOperationWorksheet(wb, dataWb):
                 trans_data_cell = transformUnit(found_data)
                 trans_data = trans_data_cell.value if trans_data_cell is not None else ""
                 task_ws[col+str(i)] = trans_data
+            elif j == 68:
+                other_ws = wb.get_sheet_by_name("TASK")
+                letter = findColumnLetterByColNameAndStartRow(other_ws, "SLWBEZ", 2)
+                found_data = other_ws[ letter+ str(2 +i-1)].value                
+                if (found_data is not None):                    
+                    task_ws[col+str(i)] = "2"
 
 def buildInspcharacteristicWorksheet(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
