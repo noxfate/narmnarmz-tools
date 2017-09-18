@@ -231,7 +231,9 @@ def buildOperationWorksheet(wb, dataWb):
             elif j == 17:
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "MEINH", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                task_ws[col+str(i)] = found_data
+                trans_data_cell = transformUnit(found_data)
+                trans_data = trans_data_cell.value if trans_data_cell is not None else ""
+                task_ws[col+str(i)] = trans_data
             elif j == 19:
                 task_ws[col+str(i)] = "1"
             elif j == 21:
@@ -264,7 +266,7 @@ def buildOperationWorksheet(wb, dataWb):
                 in_header_data_plnal_row_list = set()
                 for n in in_header_data_plnal_row_list:
                     in_header_data_plnal_row_list.add(n.row)
-                # print(len(in_header_data_plnal_row_list))
+                print(len(in_header_data_plnal_row_list))
                 same_row = set(in_header_data_plnnr_row_list) & set(in_header_data_plnal_row_list)
                 # print(len(same_row))
                 # if len(same_row) > 0:
