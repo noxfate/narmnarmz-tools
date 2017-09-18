@@ -228,6 +228,10 @@ def buildOperationWorksheet(wb, dataWb):
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "LTXA1", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
                 task_ws[col+str(i)] = found_data
+            elif j == 17:
+                letter = findColumnLetterByColNameAndStartRow(data_ws, "MEINH", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
             elif j == 19:
                 task_ws[col+str(i)] = "1"
             elif j == 21:
@@ -241,15 +245,35 @@ def buildOperationWorksheet(wb, dataWb):
                 trans_data = trans_data_cell.value if trans_data_cell is not None else ""
                 task_ws[col+str(i)] = trans_data
             elif j == 68:
+                PLNNR_letter = findColumnLetterByColNameAndStartRow(data_ws, "PLNNR", DATA_HEADER_ROW)
+                PLNAL_letter = findColumnLetterByColNameAndStartRow(data_ws, "PLNAL", DATA_HEADER_ROW)
+                found_data_plnnr = data_ws[ PLNNR_letter+ str(DATA_ROW_COUNT+i-1)].value
+                found_data_plnal = data_ws[ PLNAL_letter+ str(DATA_ROW_COUNT+i-1)].value
+
                 other_ws = dataWb.get_sheet_by_name("01 - Header")
-                PLNNR_letter = findColumnLetterByColNameAndStartRow(other_ws, "PLNNR", 2)
-                PLNAL_letter = findColumnLetterByColNameAndStartRow(other_ws, "PLNAL", 2)
-                SLWBEZ_letter = findColumnLetterByColNameAndStartRow(other_ws, "SLWBEZ", 2)
-                found_data_plnnr = other_ws[ PLNNR_letter+ str(2 +i-1)].value
-                found_data_plnal = other_ws[ PLNAL_letter+ str(2 +i-1)].value    
-                found_data_slwbez = other_ws[ SLWBEZ_letter+ str(2 +i-1)].value    
-                if (found_data_plnnr is not None) and (found_data_plnal is not None) and (found_data_slwbez is not None):                    
-                    task_ws[col+str(i)] = "2"
+                header_SLWBEZ_letter = findColumnLetterByColNameAndStartRow(other_ws, "SLWBEZ", 2)
+                
+                in_header_data_plnnr_list = findCellListInColumnByValue(other_ws, "PLNNR", found_data_plnnr, 2)
+                in_header_data_plnnr_row_list = set()
+                for n in in_header_data_plnnr_list:
+                    in_header_data_plnnr_row_list.add(n.row)
+                # print(len(in_header_data_plnnr_row_list))
+
+                # +++++++++ TODO: ++++++++++++++++++++++++++
+                in_header_data_plnal_list = findCellListInColumnByValue(other_ws, "PLNAL", found_data_plnal, 2)
+                in_header_data_plnal_row_list = set()
+                for n in in_header_data_plnal_row_list:
+                    in_header_data_plnal_row_list.add(n.row)
+                # print(len(in_header_data_plnal_row_list))
+                same_row = set(in_header_data_plnnr_row_list) & set(in_header_data_plnal_row_list)
+                # print(len(same_row))
+                # if len(same_row) > 0:
+                #     if in_header_data_plnal.row == in_header_data_plnnr.row:
+                #         data_slwbez = other_ws[header_SLWBEZ_letter+ str(in_header_data_plnnr.row)]
+                #         if (data_slwbez is not None):
+                #             task_ws[col+str(i)] = "2"
+                # if (found_data_plnnr is not None) and (found_data_plnal is not None) and (found_data_slwbez is not None):                    
+                #     task_ws[col+str(i)] = "2"
 
 def buildInspcharacteristicWorksheet(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##

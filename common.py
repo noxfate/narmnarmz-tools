@@ -37,13 +37,26 @@ def findCellInColumnByValue(worksheet, col, value, headerRow):
         cell_val = worksheet[col_letter+str(i)].value
         if (cell_val is not None) and (cell_val == value):
             return worksheet[col_letter+str(i)]
-    raise UnitConversionError("UnitConversion Error: ", worksheet, col, value)
+    return None
+
+def findCellListInColumnByValue(worksheet, col, value, headerRow):
+    col_letter = findColumnLetterByColNameAndStartRow(worksheet, col, headerRow)
+    if value is None:
+        return None
+    result = set()
+    for i in range(headerRow+1, worksheet.max_row+headerRow+1):
+        cell_val = worksheet[col_letter+str(i)].value
+        if (cell_val is not None) and (cell_val == value):
+            result.add(worksheet[col_letter+str(i)])
+    return result
 
 def transformUnit(input):
     global unit_wb
     ws = unit_wb.get_active_sheet()
     technical_cell = findCellInColumnByValue(ws, "Technical", input, 1)
     if technical_cell is None:
+        # raise UnitConversionError("UnitConversion Error: ", ws, "Technical", input)
         return None
     commercial_col_letter = findColumnLetterByColNameAndStartRow(ws, "Commercial", 1)
     return ws[commercial_col_letter+str(technical_cell.row)]
+    
