@@ -242,9 +242,13 @@ def buildOperationWorksheet(wb, dataWb):
                 task_ws[col+str(i)] = trans_data
             elif j == 68:
                 other_ws = dataWb.get_sheet_by_name("01 - Header")
-                letter = findColumnLetterByColNameAndStartRow(other_ws, "SLWBEZ", 2)
-                found_data = other_ws[ letter+ str(2 +i-1)].value                
-                if (found_data is not None):                    
+                PLNNR_letter = findColumnLetterByColNameAndStartRow(other_ws, "PLNNR", 2)
+                PLNAL_letter = findColumnLetterByColNameAndStartRow(other_ws, "PLNAL", 2)
+                SLWBEZ_letter = findColumnLetterByColNameAndStartRow(other_ws, "SLWBEZ", 2)
+                found_data_plnnr = other_ws[ PLNNR_letter+ str(2 +i-1)].value
+                found_data_plnal = other_ws[ PLNAL_letter+ str(2 +i-1)].value    
+                found_data_slwbez = other_ws[ SLWBEZ_letter+ str(2 +i-1)].value    
+                if (found_data_plnnr is not None) and (found_data_plnal is not None) and (found_data_slwbez is not None):                    
                     task_ws[col+str(i)] = "2"
 
 def buildInspcharacteristicWorksheet(wb, dataWb):
