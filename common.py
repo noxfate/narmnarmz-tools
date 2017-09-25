@@ -7,7 +7,8 @@ from openpyxl.utils import get_column_letter
 from NarmError import *
 
 cur_path = os.path.dirname(__file__)
-new_unit_path = os.path.join(cur_path, 'resource', 'unit.XLSX')
+new_unit_path = os.path.join(cur_path, 'resource','Dict', 'unit.XLSX')
+new_val_dict_path = os.path.join(cur_path, 'resource','Dict', 'unit.XLSX')
 
 def openDialog():
     root = Tkinter.Tk()
@@ -22,6 +23,7 @@ def openExcelFile(filePath):
     return wb
 
 unit_wb = openExcelFile(new_unit_path)
+val_dict_wb = openExcelFile(new_val_dict_path)
 
 def findColumnLetterByColNameAndStartRow(worksheet, value, rowNumber):
     for i in range(1, worksheet.max_column+1):
