@@ -1,5 +1,6 @@
 import Tkinter
 import tkFileDialog
+import tkMessageBox
 import os
 import openpyxl
 import itertools
@@ -54,11 +55,20 @@ def findCellListInColumnByValue(worksheet, col, value, headerRow):
 
 def transformUnit(input):
     global unit_wb
-    ws = unit_wb.get_active_sheet()
+    ws = unit_wb.get_sheet_by_name("Unit")
     technical_cell = findCellInColumnByValue(ws, "Technical", input, 1)
     if technical_cell is None:
         # raise UnitConversionError("UnitConversion Error: ", ws, "Technical", input)
         return None
     commercial_col_letter = findColumnLetterByColNameAndStartRow(ws, "Commercial", 1)
     return ws[commercial_col_letter+str(technical_cell.row)]
-    
+
+def transformUnitSampling(input):
+    global unit_wb
+    ws = unit_wb.get_sheet_by_name("Sampling")
+    old_cell = findCellInColumnByValue(ws, "Old", input, 1)
+    if old_cell is None:
+        tkMessageBox.showinfo("Not found!", input+" not found in Old.Sampling.unit")
+        return None
+    new_cell_letter = findColumnLetterByColNameAndStartRow(ws, "New", 1)
+    return ws[new_cell_letter+str(old_cell.row)]

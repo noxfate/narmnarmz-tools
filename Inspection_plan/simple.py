@@ -307,6 +307,8 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "MERKNR", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
                 task_ws[col+str(i)] = found_data
+            elif j == 6:
+                task_ws[col+str(i)] = "01012017"
             elif j == 11:
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "QUANTITATIVE_IND", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
@@ -444,7 +446,9 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 85:   
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                task_ws[col+str(i)] = found_data  
+                trans_data_cell = transformUnitSampling(found_data)
+                trans_data = trans_data_cell.value if trans_data_cell is not None else found_data
+                task_ws[col+str(i)] = trans_data  
             elif j == 86:   
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "PROBEMGEH", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
