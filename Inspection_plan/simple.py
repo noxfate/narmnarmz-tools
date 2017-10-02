@@ -266,11 +266,9 @@ def buildOperationWorksheet(wb, dataWb):
                     in_header_data_plnal_row_list.add(n.row)
 
                 same_row = set(in_header_data_plnnr_row_list) & set(in_header_data_plnal_row_list)
-                print(same_row)
                 if len(same_row) == 1:
                     for n in same_row:
                          data_slwbez = other_ws[header_SLWBEZ_letter+ str(n)].value
-                         print(data_slwbez)
                          if (data_slwbez is not None):
                             task_ws[col+str(i)] = "2"
                             break

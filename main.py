@@ -11,8 +11,12 @@ def sel():
     label.config(text = selection)
     if var.get() == 1:
         simple.run()
+        root.quit()
+        root.destroy()
     elif var.get() == 2:
         validate.run()
+        root.quit()
+        root.destroy()
 
 root = Tk()
 var = IntVar()
