@@ -68,7 +68,6 @@ def transformUnitSampling(input):
     ws = unit_wb.get_sheet_by_name("Sampling")
     old_cell = findCellInColumnByValue(ws, "Old", input, 1)
     if old_cell is None:
-        tkMessageBox.showinfo("Not found!", input+" not found in Old.Sampling.unit")
         return None
     new_cell_letter = findColumnLetterByColNameAndStartRow(ws, "New", 1)
     return ws[new_cell_letter+str(old_cell.row)]

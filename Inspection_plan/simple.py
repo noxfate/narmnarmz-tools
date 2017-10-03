@@ -281,6 +281,8 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
     ROW_START = 2 # row to start writing data
     IS_FREEZE = True # wanna freeze header ?
 
+    popup_list = []
+
     task_ws = wb.get_sheet_by_name("INSPCHARACTERISTIC")
     if (IS_FREEZE):
         task_ws.freeze_panes = "A"+ str(ROW_START)
@@ -445,6 +447,8 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
                 trans_data_cell = transformUnitSampling(found_data)
+                if (trans_data_cell is None):
+                    popup_list.append(found_data)
                 trans_data = trans_data_cell.value if trans_data_cell is not None else found_data
                 task_ws[col+str(i)] = trans_data  
             elif j == 86:   
@@ -461,7 +465,10 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
             elif j == 89:   
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "SPC_CRITERION_KEY", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
-                task_ws[col+str(i)] = found_data         
+                task_ws[col+str(i)] = found_data
+
+    if (len(popup_list) > 0):
+        tkMessageBox.showinfo(popup_list)         
 
 def buildInspCharValues(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
