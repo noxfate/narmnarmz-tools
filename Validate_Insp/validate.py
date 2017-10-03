@@ -9,10 +9,26 @@ from openpyxl.utils import get_column_letter
 from common import *
 import sys, traceback
 
+def enum(**enums):
+    return type('Enum', (), enums)
+
+ValidateError = enum(
+        NOT_NULL=["Not null", "{} cannot be null"],
+        NULL=["Null", "Leave {} blank"],
+        VALUE_TYPE=["Value type", "{} is incorrect data"],
+        LENGTH=["Length", "{} is out og length"],
+        FIXED_VALUE=["Fixed value", "{} must be {}"],
+        FIXED_VALUE_EMPTY=["Fixed value Not Found", "{} doesn't exist"],
+        FIXED_VALUE_X=["Fixed value X", "X must be capital letter"],
+        DUPLICATE_KEY=["Duplicate", "Duplicate code"],
+        DUPLICATE=["Duplicate", "Duplicate material assignment"]
+    )
+
+import validate_header
+
 def run():
-    filePath = openDialog()
-    # wb = openExcelFile(fileName)
-    # filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
+    # filePath = openDialog()
+    filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
     start_time = time.time()
     try:
         file_structure = configFileStructure()
@@ -47,7 +63,7 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
         wb.remove_sheet(wb.get_sheet_by_name(i))    
 
     print("....Start Building....")
-    
+    # validate_header.validate()
     print("Output: ", fileName)
     wb.save(fileName)
 
@@ -68,20 +84,3 @@ def configFileStructure():
     main_header.append(header_04)
     result = dict(itertools.izip(output_sheets, main_header))
     return result
-
-def buildHeaderTab(wb, dataWb):
-    ## CONFIG HERE NA N'Narm ##
-    DATA_TAB_NAME = "01 - Header" # sheet name to find data
-    DATA_ROW_COUNT = 2 # how many row to skip in header
-    DATA_HEADER_ROW = 2 # what row to find by field
-    ROW_START = 2 # row to start writing data
-    IS_FREEZE = True # wanna freeze header ?
-
-    active_ws = wb.get_sheet_by_name("01 - Header")
-    if (IS_FREEZE):
-        active_ws.freeze_panes = "A"+ str(ROW_START)
-    data_ws = dataWb.get_sheet_by_name(DATA_TAB_NAME)
-    n_of_data = data_ws.max_row - DATA_ROW_COUNT
-    for i in range(ROW_START, n_of_data + ROW_START): # ROW LOOP in TASK WORKSHEET by n(data)
-        for j in range(1, active_ws.max_column+1): #COLUMN LOOP in TASK WORKSHEET by column template
-            col = get_column_letter(j)

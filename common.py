@@ -71,3 +71,12 @@ def transformUnitSampling(input):
         return None
     new_cell_letter = findColumnLetterByColNameAndStartRow(ws, "New", 1)
     return ws[new_cell_letter+str(old_cell.row)]
+
+def insert_new_row(ws, row_data):
+    n = ws.max_row
+    new_row = n+1
+    for i in range(1, len(row_data)+1):
+        ws.cell(row=new_row, col=i).value = row_data[i-1]
+
+def isChar(input):
+    return not input.isdigit()
