@@ -468,7 +468,7 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
                 task_ws[col+str(i)] = found_data
 
     if (len(popup_list) > 0):
-        tkMessageBox.showinfo(popup_list)         
+        tkMessageBox.showinfo("Not Found List", popup_list)         
 
 def buildInspCharValues(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
