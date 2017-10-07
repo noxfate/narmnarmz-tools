@@ -16,15 +16,32 @@ ValidateError = enum(
         NOT_NULL=["Not null", "{} cannot be null"],
         NULL=["Null", "Leave {} blank"],
         VALUE_TYPE=["Value type", "{} is incorrect data"],
-        LENGTH=["Length", "{} is out og length"],
+        LENGTH=["Length", "{} is out of length"],
         FIXED_VALUE=["Fixed value", "{} must be {}"],
-        FIXED_VALUE_EMPTY=["Fixed value Not Found", "{} doesn't exist"],
+        FIXED_VALUE_EMPTY=["Fixed value Not Found in Dict", "{} doesn't exist"],
         FIXED_VALUE_X=["Fixed value X", "X must be capital letter"],
         DUPLICATE_KEY=["Duplicate", "Duplicate code"],
-        DUPLICATE=["Duplicate", "Duplicate material assignment"]
+        DUPLICATE=["Duplicate", "Duplicate material assignment"],
+        UNDEFINED=["Undefined", "{}"]
     )
 
+cur_path = os.path.dirname(__file__)
+new_unit_path = os.path.join(cur_path,'..', 'resource','Dict', 'unit.XLSX')
+new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary V1.0.XLSX')
+
+val_dict_wb = openExcelFile(new_val_dict_path)
+
+def find_in_dict(sheetName, colNumber, input):
+    global val_dict_wb
+    ws = val_dict_wb.get_sheet_by_name(sheetName)
+    found = findCellInColumnByValue(ws, colNumber, input, 0)
+    # print("Find: ["+sheetName+"] "+str(input), ", Found: "+str(found))
+    if found is None:
+        return None
+    return found
+
 import validate_header
+import validate_operation
 
 def run():
     # filePath = openDialog()
@@ -39,12 +56,13 @@ def run():
         easygui.msgbox("Your output is "+output_filename+", which is in the same directory that your selected file. \n\nGood luck, have fun!!\n\nExecutime (s): "+str((time.time() - start_time)), title="Success!")
     except TypeError:
         err = traceback.format_exc()
+        print(err)
         easygui.msgbox("TypeError: Maybe this happen because the program can't find field in Excel\n\n"+str(err))
     except UnitConversionError as dic:
         easygui.msgbox("Value Not Found: cannot find this following data in 02_Val_Dictionary.xlsx\n\n"+str(dic))
     except:
         err = traceback.format_exc()
-        # print(err)
+        print(err)
         easygui.msgbox("Unexpected Error: "+str(err))
 
 
@@ -63,7 +81,10 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
         wb.remove_sheet(wb.get_sheet_by_name(i))    
 
     print("....Start Building....")
-    # validate_header.validate()
+    print("....Validating 01 - Header....")
+    validate_header.validate(wb, datamodelwb)
+    print("....Validating 02 - Operaion....")
+    validate_operation.validate(wb, datamodelwb)
     print("Output: ", fileName)
     wb.save(fileName)
 
