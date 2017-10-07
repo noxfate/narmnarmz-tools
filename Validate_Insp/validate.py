@@ -42,6 +42,7 @@ def find_in_dict(sheetName, colNumber, input):
 
 import validate_header
 import validate_operation
+import validate_mat
 
 def run():
     # filePath = openDialog()
@@ -85,6 +86,9 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
     validate_header.validate(wb, datamodelwb)
     print("....Validating 02 - Operaion....")
     validate_operation.validate(wb, datamodelwb)
+
+    print("....Validating 04 - Mat. Assign....")
+    validate_mat.validate(wb, datamodelwb)
     print("Output: ", fileName)
     wb.save(fileName)
 
