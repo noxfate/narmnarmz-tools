@@ -6,28 +6,28 @@ from Tkinter import *
 
 sys.dont_write_bytecode = True
 
-validate.run()
+# validate.run()
 
-# def sel():
-#     selection = "You selected the option " + str(var.get())
-#     label.config(text = selection)
-#     if var.get() == 1:
-#         simple.run()
-#         root.quit()
-#         root.destroy()
-#     elif var.get() == 2:
-#         validate.run()
-#         root.quit()
-#         root.destroy()
+def sel():
+    selection = "You selected the option " + str(var.get())
+    label.config(text = selection)
+    if var.get() == 1:
+        simple.run()
+        root.quit()
+        root.destroy()
+    elif var.get() == 2:
+        validate.run()
+        root.quit()
+        root.destroy()
 
-# root = Tk()
-# var = IntVar()
-# R1 = Radiobutton(root, text="Run Inspection Plan", variable=var, value=1, command=sel)
-# R1.pack( anchor = W )
+root = Tk()
+var = IntVar()
+R1 = Radiobutton(root, text="Run Inspection Plan", variable=var, value=1, command=sel)
+R1.pack( anchor = W )
 
-# R2 = Radiobutton(root, text="Run Validate Inspection Plan", variable=var, value=2, command=sel)
-# R2.pack( anchor = W )
+R2 = Radiobutton(root, text="Run Validate Inspection Plan", variable=var, value=2, command=sel)
+R2.pack( anchor = W )
 
-# label = Label(root)
-# label.pack()
-# root.mainloop()
+label = Label(root)
+label.pack()
+root.mainloop()
