@@ -72,7 +72,7 @@ def validate(wb, dataWb):
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
         if len(match_cond_2) > 1:
             data = [PLNNR, PLNAL, WERKS, KTEXT]
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("By Additional Condition 2"), "N="+str(len(match_cond_2)))
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Duplicate usage within Group"), "N="+str(len(match_cond_2)))
     
     print("Fin Additional Condition")
 

@@ -40,9 +40,11 @@ def find_in_dict(sheetName, colNumber, input):
         return None
     return found
 
-import validate_header
-import validate_operation
-import validate_mat
+import validate_01header
+import validate_02operation
+import validate_03mic
+import validate_04mat
+import validate_05denp
 
 def run():
     # filePath = openDialog()
@@ -83,29 +85,34 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
 
     print("....Start Building....")
     print("....Validating 01 - Header....")
-    validate_header.validate(wb, datamodelwb)
+    validate_01header.validate(wb, datamodelwb)
     print("....Validating 02 - Operaion....")
-    validate_operation.validate(wb, datamodelwb)
-
+    validate_02operation.validate(wb, datamodelwb)
+    print("....Validating 03 - MIC....")
+    validate_03mic.validate(wb, datamodelwb)
     print("....Validating 04 - Mat. Assign....")
-    validate_mat.validate(wb, datamodelwb)
+    validate_04mat.validate(wb, datamodelwb)
+    print("....Validating 05 - Denp. Char. ....")
+    validate_05denp.validate(wb, datamodelwb)
     print("Output: ", fileName)
     wb.save(fileName)
 
 def configFileStructure():
     output_sheets = [
-        "01 - Header", "02 - Operation", "03 - MIC", "04 - Mat. Assign"
+        "01 - Header", "02 - Operation", "03 - MIC", "04 - Mat. Assign", "05 - Denp. Char."
         ] # index (order) DOES MATTER!!
     main_header = []
     header_01 = ["Status", "Group", "Group Counter", "Plant", "Task list description", "Error Message"]
     header_02 = ["Status", "Group", "Group Counter", "Operation/Activity", "Operation short text", "Error Message"]
     header_03 = ["Status", "Group", "Group Counter", "Operation/Activity", "Characteristic number", "Error Message"]
     header_04 = ["Status", "Group", "Group Counter", "Assign Plant", "Material", "Error Message"]
+    header_05 = ["Status", "Group", "Group Counter", "Operation Number", "Characteristic Numner", "No. Dep. Char. Specs", "Error Message"]
 
     # append order MUST match sheet names in [output_sheets]
     main_header.append(header_01)
     main_header.append(header_02)
     main_header.append(header_03)
     main_header.append(header_04)
+    main_header.append(header_05)
     result = dict(itertools.izip(output_sheets, main_header))
     return result

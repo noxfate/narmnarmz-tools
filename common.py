@@ -40,7 +40,7 @@ def findCellInColumnByValue(worksheet, col, value, headerRow):
 
     if value is None:
         return None
-    for i in range(headerRow+1, worksheet.max_row+headerRow+1):
+    for i in range(1, worksheet.max_row+1):
         cell_val = worksheet.cell(row=i, column=col_n).value
         # print(cell_val, type(cell_val)," : ",value, type(value))
         if (cell_val is not None) and (cell_val == value):
@@ -52,7 +52,8 @@ def findCellListInColumnByValue(worksheet, col, value, headerRow):
     if value is None:
         return None
     result = set()
-    for i in range(headerRow+1, worksheet.max_row+headerRow+1):
+    rowN = worksheet.max_row
+    for i in range(1, rowN+1):
         cell_val = worksheet[col_letter+str(i)].value
         if (cell_val is not None) and (cell_val == value):
             result.add(worksheet[col_letter+str(i)])
@@ -102,15 +103,31 @@ def find_by_keys(ws, headerRow, dataRowStart, keyDict):
     DATA_ROW_COUNT = dataRowStart # how many row to skip in header
     DATA_HEADER_ROW = headerRow # what row to find by field
 
-    data_ws = ws
-    n_of_data = data_ws.max_row - DATA_ROW_COUNT
     found = []
     for k in keyDict.keys():
-        cells = findCellListInColumnByValue(data_ws, k, keyDict[k], DATA_HEADER_ROW)
+        cells = findCellListInColumnByValue(ws, k, keyDict[k], DATA_HEADER_ROW)        
         rows = []
         if cells is not None:
-            for i in cells:
-                rows.append(i.row)
+            cells_list = list(cells)
+            for i in range(len(cells_list)):
+                rows.append(cells_list[i].row)
         found.append(set(rows))
     result = set.intersection(*found)
     return result
+
+def calAfterPoint(x):
+    if not '.' in x:
+        return 0
+    return len(x) - x.index('.') - 1
+
+def checkDecimalPlace(num, data):
+    """ checkDecimalPlace(int Number of decimal Place, string data) """
+    if data == "":
+        return True
+    else:
+        d = calAfterPoint(data)
+        num = int(num)
+        if abs(num) == abs(d):
+            return True
+        else:
+            return False

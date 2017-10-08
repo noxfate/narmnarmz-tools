@@ -15,8 +15,9 @@ def writeHeaderReport(ws, status, data, errorMsg, debug=None):
 
 def check_same_MatAssign_MEINS_by_meinh(dataWb, keyDict, meinh_data):
     mat_ws = dataWb.get_sheet_by_name("04 - Mat. Assign")
-    keyDict.pop("VORNR")
-    found = find_by_keys(mat_ws, 2, 2, keyDict)
+    keys = dict(keyDict)
+    keys.pop("VORNR")
+    found = find_by_keys(mat_ws, 2, 2, keys)
     found = list(found)
     found.sort()
     row = found[0] if len(found) >= 1 else 0
@@ -30,8 +31,9 @@ def check_same_MatAssign_MEINS_by_meinh(dataWb, keyDict, meinh_data):
 
 def check_same_header_by_werks(dataWb, keyDict, data):
     ws = dataWb.get_sheet_by_name("01 - Header")
-    keyDict.pop("VORNR")
-    found = find_by_keys(ws, 2, 2, keyDict)
+    keys = dict(keyDict)
+    keys.pop("VORNR")
+    found = find_by_keys(ws, 2, 2, keys)
     found = list(found)
     found.sort()
     row = found[0] if len(found) >= 1 else 0
@@ -88,7 +90,7 @@ def validate(wb, dataWb):
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
         if len(match_cond_2) < 1:
             data = [PLNNR, PLNAL, VORNR, LTXA1]
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("By Additional Condition 2"), "N="+str(len(match_cond_2)))
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 01-Header"), "N="+str(len(match_cond_2)))
     
     print("Fin Additional Condition")
 

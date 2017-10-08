@@ -33,6 +33,7 @@ def validate(wb, dataWb):
     PLNAL_col = findColumnLetterByColNameAndStartRow(data_ws, "PLNAL", DATA_HEADER_ROW)
     DATUV_col = findColumnLetterByColNameAndStartRow(data_ws, "DATUV", DATA_HEADER_ROW)
     MATNR_col = findColumnLetterByColNameAndStartRow(data_ws, "MATNR", DATA_HEADER_ROW)
+    MEINS_col = findColumnLetterByColNameAndStartRow(data_ws, "MEINS", DATA_HEADER_ROW)
     for i in range(DATA_ROW_COUNT+1, n_of_data + DATA_ROW_COUNT+1):
         PLNNR = data_ws[PLNNR_col + str(i)].value
         PLNAL = data_ws[PLNAL_col + str(i)].value
@@ -51,14 +52,24 @@ def validate(wb, dataWb):
         match_cond_2 = find_by_keys(header_ws, 2, 2, d)
         # print("Cond2", match_cond_2)
 
+        MEINS = data_ws[MEINS_col + str(i)].value
+        d = dict()
+        d["PLNNR"] = PLNNR
+        d["PLNAL"] = PLNAL
+        d["MEINS"] = MEINS
+        match_cond_3 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+
         DATUV = data_ws[DATUV_col + str(i)].value
         if len(match_cond_1) > 1:
             data = [PLNNR, PLNAL, DATUV, MATNR]
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
         if len(match_cond_2) < 1:
             data = [PLNNR, PLNAL, DATUV, MATNR]
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("By Additional Condition 2"), "N="+str(len(match_cond_2)))
-    
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 01-Header"), "N="+str(len(match_cond_2)))
+        if len(match_cond_3) < 1:
+            data = [PLNNR, PLNAL, DATUV, MATNR]
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Material has different Units"), "N="+str(len(match_cond_3)))
+
     print("Fin Additional Condition")
 
     # Check By Field
