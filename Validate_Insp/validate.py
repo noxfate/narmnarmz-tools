@@ -47,8 +47,8 @@ import validate_04mat
 import validate_05denp
 
 def run():
-    # filePath = openDialog()
-    filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
+    filePath = openDialog()
+    # filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
     start_time = time.time()
     try:
         file_structure = configFileStructure()
