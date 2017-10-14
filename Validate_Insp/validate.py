@@ -62,7 +62,7 @@ def run():
         print(err)
         easygui.msgbox("TypeError: Maybe this happen because the program can't find field in Excel\n\n"+str(err))
     except UnitConversionError as dic:
-        easygui.msgbox("Value Not Found: cannot find this following data in 02_Val_Dictionary.xlsx\n\n"+str(dic))
+        easygui.msgbox("Value Not Found: cannot find this following data in 02 Dictionary V1.0.xlsx\n\n"+str(dic))
     except:
         err = traceback.format_exc()
         print(err)

@@ -23,9 +23,7 @@ def check_same_MatAssign_by_meinh(dataWb, keyDict, meinh_data):
         return False
     MEINS_col = findColumnLetterByColNameAndStartRow(mat_ws, "MEINS", 2)
     MEINS = mat_ws[MEINS_col + str(row)].value
-    if meinh_data == MEINS:
-        return True
-    return False
+    return MEINS == meinh_data
 
 
 def validate(wb, dataWb):
@@ -162,7 +160,7 @@ def validate(wb, dataWb):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
                 if data is not None and len(data) > 3:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
-                if find_in_dict("05-Insp point", 1, real_data) is None:
+                if data is not None and find_in_dict("05-Insp point", 1, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QPRZIEHVER":
                 if not isNumeric(data) and data is not None:

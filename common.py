@@ -43,7 +43,7 @@ def findCellInColumnByValue(worksheet, col, value, headerRow):
     for i in range(1, worksheet.max_row+1):
         cell_val = worksheet.cell(row=i, column=col_n).value
         # print(cell_val, type(cell_val)," : ",value, type(value))
-        if (cell_val is not None) and (cell_val == value):
+        if (cell_val is not None) and (compareCellValue(cell_val, value)):
             return worksheet.cell(row=i, column=col_n)
     return None
 
@@ -55,7 +55,7 @@ def findCellListInColumnByValue(worksheet, col, value, headerRow):
     rowN = worksheet.max_row
     for i in range(1, rowN+1):
         cell_val = worksheet[col_letter+str(i)].value
-        if (cell_val is not None) and (cell_val == value):
+        if (cell_val is not None) and (compareCellValue(cell_val, value)):
             result.add(worksheet[col_letter+str(i)])
     return result
 
@@ -131,3 +131,10 @@ def checkDecimalPlace(num, data):
             return True
         else:
             return False
+
+def compareCellValue(x, y):
+    if isinstance(x, type(y)) or isinstance(y, type(x)):
+        return x == y
+    else:
+        return str(x).strip() == str(y).strip()
+
