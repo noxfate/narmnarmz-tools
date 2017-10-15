@@ -353,6 +353,7 @@ def validate(wb, dataWb):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Decimal place"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         v1 = get_value_by_row_colname(data_ws, "TOLERANZUN", i)
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i)
+                        print(v2, real_data, v1)
                         if real_data <= v1 or real_data >= v2:
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZUN":
