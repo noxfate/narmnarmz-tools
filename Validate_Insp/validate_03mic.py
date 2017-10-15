@@ -1,9 +1,9 @@
 from common import *
 from openpyxl.utils import get_column_letter
 import openpyxl
-from validate import ValidateError, find_in_dict
+from validate import ValidateError, find_in_dict, find_multiple_in_dict
 
-def writeHeaderReport(ws, status, data, errorMsg, debug=None):
+def writeHeaderReport(ws, status, data, errorMsg, debug=None, colName=None, isQL=None):
     new_row = []
     new_row.append(status)
     if len(data) != 4:
@@ -11,6 +11,8 @@ def writeHeaderReport(ws, status, data, errorMsg, debug=None):
     new_row += data
     new_row.append(errorMsg)
     new_row.append(debug)
+    new_row.append(colName)
+    new_row.append(isQL)
     insert_new_row(ws, new_row) 
 
 def get_01header_SLWBEZ_by_key(dataWb, keyDict):
@@ -46,9 +48,7 @@ def check_same_matassign_by_MEINS(dataWb, keyDict, data):
         return False
     col = findColumnLetterByColNameAndStartRow(ws, "MEINS", 2)
     WERKS = ws[col + str(row)].value
-    if data == WERKS:
-        return True
-    return False 
+    return data == WERKS
 
 def get_decimal_places(ws, row):
     MIC_HEADER = 3
@@ -130,13 +130,17 @@ def validate(wb, dataWb):
         QPMK_WERKS = data_ws[QPMK_WERKS_col + str(i)].value
         VERWMERKM = data_ws[VERKMERKM_col + str(i)].value
         MIC_Checklist = QPMK_WERKS.strip() + VERWMERKM.strip()
-        found_QL = find_in_dict("06-MICQL", 1, MIC_Checklist)
-        found_QN = find_in_dict("06-MICQN", 1, MIC_Checklist)
-        if found_QL is None and found_QN is not None:
+        x_dict = dict()
+        x_dict[2] = QPMK_WERKS
+        x_dict[3] = VERWMERKM
+        found_QL = find_multiple_in_dict("06-MICQL", x_dict)
+        found_QN = find_multiple_in_dict("06-MICQN", x_dict)
+        if len(found_QL) == 0 and len(found_QN) != 0:
             isQL = False
-        elif found_QL is not None and found_QN is None:
+        elif len(found_QL) != 0 and len(found_QN) == 0:
             isQL = True
-        elif found_QL is None and found_QN is None:
+        elif len(found_QL) == 0 and len(found_QN) == 0:
+            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Not Found in both MICQL, MICQN"), i)
             continue
         else:
             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Found in both MICQL, MICQN"), i)
@@ -152,111 +156,111 @@ def validate(wb, dataWb):
             
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
                 if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 8:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNAL":
                 if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if not isNumeric(data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 2:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)            
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VORNR":
                 if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if not isNumOnly(data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MERKNR":
                 if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if not isNumOnly(data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QUANTITATIVE_IND":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: QUANTITATIVE_IND must be blank"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: QUANTITATIVE_IND must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if data is not None and data != "X":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i)                    
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MKVERSION":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "KURZTEXT":
                 if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 40:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ATTRIBUTE_REQUIR":
                 if not isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Quantitative: ATTRIBUTE_REQUIR must be blank"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Quantitative: ATTRIBUTE_REQUIR must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if data is not None and data != "X":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i)                    
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEAS_VALUE_CONFI":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: QUANTITATIVE_IND must be blank"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: QUANTITATIVE_IND must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if data is not None and data != "X":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i)                    
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "RESULT_RECORDING":
                 if data is not None and data != "+":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "+"), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "+"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "AUTO_DEFCT_RECOR":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "CONFIRMATION_CAT":
                 if data is not None and data != "X":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ADD_SAMPLE_QUANT":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DESTRUCTIVE_INSP":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SPC_IND":
                 if isQL:
                     if data is not None:
-                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: SPC_IND must be blank"), i)
+                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: SPC_IND must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:                    
                     SPC_CRIT = get_value_by_row_colname(data_ws, "SPC_CRITERION_KEY", i)
                     if SPC_CRIT is None and data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC_IND Conflict with SPC_CRITERION_KEY"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC_IND Conflict with SPC_CRITERION_KEY"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     elif SPC_CRIT is not None and data != "X":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SPC_CRITERION_KEY":
                 if isQL:
                     if data is not None:
-                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: SPC_CRITERION_KEY must be blank"), i)
+                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: SPC_CRITERION_KEY must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     SPC_IND = get_value_by_row_colname(data_ws, "SPC_IND", i)
                     if SPC_IND is None and data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC_IND Conflict with SPC_CRITERION_KEY"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC_IND Conflict with SPC_CRITERION_KEY"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     elif SPC_IND is not None and data != "070":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "070"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "070"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SAMPLING_PROCEDU":
                 if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and data != "X":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STICHPRVER":
                 if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 8:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None:
                     Header_SLWBEZ = get_01header_SLWBEZ_by_key(dataWb, key_data_dict)
                     MIC_SPC = get_value_by_row_colname(data_ws, "SPC_IND", i)
@@ -269,224 +273,230 @@ def validate(wb, dataWb):
                     elif Header_SLWBEZ is not None and MIC_SPC is not None:
                         found = find_in_dict("07-SampPointSPC", 1, real_data)
                     if found is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PROBEMGEH":
                 if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if not isNumeric(data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 6:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if not check_same_matassign_by_MEINS(dataWb, key_data_dict, real_data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Not the same in 04-Mat.Assign"), i) 
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Not the same in 04-Mat.Assign"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PRUEFEINH":
                 if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and data != "1":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1"), i) 
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEAS_UNIT":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: MEAS_UNIT must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: MEAS_UNIT must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is not None and len(data) > 6:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
-                    if find_in_dict("02-Unit", 4, real_data) is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MEAS_UNIT doesn't exist"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    if data is not None and find_in_dict("02-Unit", 4, real_data) is None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MEAS_UNIT doesn't exist"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TARGET_VAL_CHECK":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: TARGET_VAL_CHECK must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: TARGET_VAL_CHECK must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if get_value_by_row_colname(data_ws, "SOLLWERT", i) is not None:
                         if data is None:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if data is not None and data != "X":                    
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with Target Value"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with Target Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LW_TOL_LMT_IND":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: LW_TOL_LMT_IND must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: LW_TOL_LMT_IND must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if get_value_by_row_colname(data_ws, "TOLERANZUN", i) is not None:
                         if data is None:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if data is not None and data != "X":                    
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with Lower Limit"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with Lower Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "UP_TOL_LMT_IND":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: UP_TOL_LMT_IND must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: UP_TOL_LMT_IND must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if get_value_by_row_colname(data_ws, "TOLERANZOB", i) is not None:
                         if data is None:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if data is not None and data != "X":                    
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with Upper Limit"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DEC_PLACES":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: DEC_PLACES must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: DEC_PLACES must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is not None and not isNumeric(data):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if data is not None and len(data) > 3:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)             
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SOLLWERT":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: Target Value must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: Target Value must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is not None and not isNumeric(data):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if data is not None and len(data) > 16:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if get_value_by_row_colname(data_ws, "TARGET_VAL_CHECK", i) is not None:
                         if data is None:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with TARGET_VAL_CHECK"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with TARGET_VAL_CHECK"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         dec = get_decimal_places(data_ws, i)
                         if not checkDecimalPlace(dec, data):
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Decimal place"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Decimal place"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         v1 = get_value_by_row_colname(data_ws, "TOLERANZUN", i)
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i)
                         if real_data <= v1 or real_data >= v2:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZUN":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: Lower Limit must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: Lower Limit must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is not None and not isNumeric(data):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if data is not None and len(data) > 16:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if get_value_by_row_colname(data_ws, "LW_TOL_LMT_IND", i) is not None:
                         if data is None:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with LW_TOL_LMT_IND"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with LW_TOL_LMT_IND"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         dec = get_decimal_places(data_ws, i)
                         if not checkDecimalPlace(dec, data):
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Decimal place"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Decimal place"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         v1 = get_value_by_row_colname(data_ws, "SOLLWERT", i)
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i)
                         if real_data >= v1 or real_data >= v2:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Target Value or Upper Limit"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Target Value or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZOB":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: Upper Limit must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: Upper Limit must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is not None and not isNumeric(data):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if data is not None and len(data) > 16:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if get_value_by_row_colname(data_ws, "UP_TOL_LMT_IND", i) is not None:
                         if data is None:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with UP_TOL_LMT_IND"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with UP_TOL_LMT_IND"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         dec = get_decimal_places(data_ws, i)
                         if not checkDecimalPlace(dec, data):
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Decimal place"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Decimal place"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         v1 = get_value_by_row_colname(data_ws, "SOLLWERT", i)
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZUN", i)
                         if real_data <= v1 or real_data <= v2:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Target Value or Lower Limit"), i)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Target Value or Lower Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "AUSWMENGE1":
                 if isQL:
                     if data is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Selected set cannot be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Selected set cannot be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if data is not None and len(data) > 8:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     QWERKAUSW = get_value_by_row_colname(data_ws, "QWERKAUSW", i)
                     x = QWERKAUSW.strip() + data.strip()
-                    if find_in_dict("08-Selected Set", 1, x) is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i) 
+                    x_dict = dict()
+                    x_dict[3] = real_data
+                    x_dict[2] = QWERKAUSW
+                    if find_multiple_in_dict("08-Selected Set", x_dict) is None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Quantitative: Selected set must be blank"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Quantitative: Selected set must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QWERKAUSW":
                 if isQL:
                     if data is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Plant for Selected set cannot be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Plant for Selected set cannot be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if data is not None and len(data) > 4:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     AUSWMENGE1 = get_value_by_row_colname(data_ws, "AUSWMENGE1", i)
                     x = data.strip() + AUSWMENGE1.strip()
-                    if find_in_dict("08-Selected Set", 1, x) is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i) 
+                    x_dict = dict()
+                    x_dict[3] = AUSWMENGE1
+                    x_dict[2] = real_data
+                    if find_multiple_in_dict("08-Selected Set", x_dict) is None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Quantitative: Plant for Selected set must be blank"), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Quantitative: Plant for Selected set must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PMETHODE":
                 if data is not None and len(data) > 8:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and find_in_dict("09-Method",3, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i) 
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QMTB_WERKS":
                 if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and find_in_dict("09-Method",2, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i) 
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PMTVERSION":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LONG_TERM_INSP_I":
                 if data is not None and data != "X":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "INSPECTOR_QUALIF":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DUMMY10":
                 if data is not None and len(data) > 10:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DUMMY20":
                 if data is not None and len(data) > 20:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DUMMY40":
                 if data is not None and len(data) > 40:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SCOPE_IND":
                 if get_value_by_row_colname(data_ws, "SPC_IND", i) is not None:
-                    if data is None or data != "=":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC must be fixed scope"), i) 
+                    if data is not None and data != "=":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC must be fixed scope"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QSCORE_AND_SHARE":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "CHANGE_DOCUMENTS":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "INSP_TOOL_IND":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DOCU_REQU":
                 if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PRINT_IND":
                 if data is not None and data != "X":
-                    writeHeaderReport(active_ws, "ERROR", ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i)
+                    writeHeaderReport(active_ws, "ERROR", ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "FORMULA_IND":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: FORMULA_IND must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: FORMULA_IND must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if get_value_by_row_colname(data_ws, "FORMEL1", i) is not None:
                         if data is None or data != "X":
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("FORMULA_IND conflict with FORMEL1"), i) 
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("FORMULA_IND conflict with FORMEL1"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "FORMEL1":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: FORMULA_FIELD_1 must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: FORMULA_FIELD_1 must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if get_value_by_row_colname(data_ws, "FORMULA_IND", i) is not None:
                         if data is None:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("FORMEL1 conflict with FORMULA_IND"), i) 
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("FORMEL1 conflict with FORMULA_IND"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if data is not None and len(data) > 60:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i) 
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "FORMEL2":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: FORMULA_FIELD_2 must be blank"), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: FORMULA_FIELD_2 must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if get_value_by_row_colname(data_ws, "FORMEL2", i) is not None:
                         if data is None:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Fill formular in FORMEL1 first"), i) 
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Fill formular in FORMEL1 first"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if data is not None and len(data) > 60:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i) 
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)

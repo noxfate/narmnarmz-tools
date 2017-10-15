@@ -40,6 +40,22 @@ def find_in_dict(sheetName, colNumber, input):
         return None
     return found
 
+def find_multiple_in_dict(sheetName, inputDict):
+    global val_dict_wb
+    ws = val_dict_wb.get_sheet_by_name(sheetName)
+    found = []
+    for k in inputDict.keys():
+        cells = findCellListInColumnByValue(ws, k, inputDict[k], 1)
+        rows = []
+        if cells is not None:
+            cells_list = list(cells)
+            for i in range(len(cells_list)):
+                rows.append(cells_list[i].row)
+        found.append(set(rows))
+    result = set.intersection(*found)
+    return result
+
+
 import validate_01header
 import validate_02operation
 import validate_03mic

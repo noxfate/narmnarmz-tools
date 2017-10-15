@@ -48,7 +48,11 @@ def findCellInColumnByValue(worksheet, col, value, headerRow):
     return None
 
 def findCellListInColumnByValue(worksheet, col, value, headerRow):
-    col_letter = findColumnLetterByColNameAndStartRow(worksheet, col, headerRow)
+    if isinstance(col, str):
+        col_letter = findColumnLetterByColNameAndStartRow(worksheet, col, headerRow)
+    elif isinstance(col, int):
+        col_letter = get_column_letter(col)
+
     if value is None:
         return None
     result = set()
