@@ -92,7 +92,7 @@ def insert_new_row(ws, row_data):
 def isNumeric(input):
     if input is None:
         return False
-    return input.isdigit()
+    return input.replace('-', '', 1).replace('.' ,'' , 1).isdigit()
 
 def isNumOnly(input):
     if input is None:
@@ -126,12 +126,12 @@ def calAfterPoint(x):
 
 def checkDecimalPlace(num, data):
     """ checkDecimalPlace(int Number of decimal Place, string data) """
-    if data == "":
+    if data == "" or data is None:
         return True
     else:
         d = calAfterPoint(data)
         num = int(num)
-        if abs(num) == abs(d):
+        if abs(d) <= abs(num):
             return True
         else:
             return False

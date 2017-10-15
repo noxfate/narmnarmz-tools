@@ -129,7 +129,11 @@ def validate(wb, dataWb):
         VERKMERKM_col = findColumnLetterByColNameAndStartRow(data_ws, "VERWMERKM", DATA_HEADER_ROW)
         QPMK_WERKS = data_ws[QPMK_WERKS_col + str(i)].value
         VERWMERKM = data_ws[VERKMERKM_col + str(i)].value
-        MIC_Checklist = QPMK_WERKS.strip() + VERWMERKM.strip()
+        if QPMK_WERKS is None:
+            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format("Plant - MIC"), i)
+        if VERWMERKM is None:
+            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format("Master Inspection Characteristic"), i)
+
         x_dict = dict()
         x_dict[2] = QPMK_WERKS
         x_dict[3] = VERWMERKM
@@ -191,11 +195,9 @@ def validate(wb, dataWb):
                     if data is not None and data != "X":
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MKVERSION":
-                if data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                if data is not None and data != "1":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "KURZTEXT":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 40:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ATTRIBUTE_REQUIR":
@@ -277,15 +279,15 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PROBEMGEH":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNumeric(data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 6:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if not check_same_matassign_by_MEINS(dataWb, key_data_dict, real_data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Not the same in 04-Mat.Assign"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Sampling Unit of Measure not mapping with 04-Mat.Assign"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PRUEFEINH":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                if data is not None and not isNumeric(data):
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and data != "1":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEAS_UNIT":
@@ -351,11 +353,15 @@ def validate(wb, dataWb):
                         dec = get_decimal_places(data_ws, i)
                         if not checkDecimalPlace(dec, data):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Decimal place"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                        v1 = get_value_by_row_colname(data_ws, "TOLERANZUN", i)
-                        v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i)
-                        print(v2, real_data, v1)
-                        if real_data <= v1 or real_data >= v2:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        v1 = get_value_by_row_colname(data_ws, "TOLERANZUN", i) # lower
+                        v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i) # upper
+                        if v1 is not None:
+                            if real_data < v1:
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        if v2 is not None:
+                            if real_data > v2:
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZUN":
                 if isQL:
                     if data is not None:
@@ -371,10 +377,14 @@ def validate(wb, dataWb):
                         dec = get_decimal_places(data_ws, i)
                         if not checkDecimalPlace(dec, data):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Decimal place"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                        v1 = get_value_by_row_colname(data_ws, "SOLLWERT", i)
-                        v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i)
-                        if real_data >= v1 or real_data >= v2:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Target Value or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        v1 = get_value_by_row_colname(data_ws, "SOLLWERT", i) # target
+                        v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i) # upper
+                        if v1 is not None:
+                            if real_data > v1:
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        if v2 is not None:
+                            if real_data > v2:
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZOB":
                 if isQL:
                     if data is not None:
@@ -390,10 +400,15 @@ def validate(wb, dataWb):
                         dec = get_decimal_places(data_ws, i)
                         if not checkDecimalPlace(dec, data):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Decimal place"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                        v1 = get_value_by_row_colname(data_ws, "SOLLWERT", i)
-                        v2 = get_value_by_row_colname(data_ws, "TOLERANZUN", i)
-                        if real_data <= v1 or real_data <= v2:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Target Value or Lower Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        v1 = get_value_by_row_colname(data_ws, "SOLLWERT", i) # target
+                        v2 = get_value_by_row_colname(data_ws, "TOLERANZUN", i) # lower
+                        if v1 is not None:
+                            if real_data < v1:
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        if v2 is not None:
+                            if real_data < v2:
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "AUSWMENGE1":
                 if isQL:
                     if data is None:
@@ -401,7 +416,6 @@ def validate(wb, dataWb):
                     if data is not None and len(data) > 8:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     QWERKAUSW = get_value_by_row_colname(data_ws, "QWERKAUSW", i)
-                    x = QWERKAUSW.strip() + data.strip()
                     x_dict = dict()
                     x_dict[3] = real_data
                     x_dict[2] = QWERKAUSW
@@ -417,7 +431,6 @@ def validate(wb, dataWb):
                     if data is not None and len(data) > 4:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     AUSWMENGE1 = get_value_by_row_colname(data_ws, "AUSWMENGE1", i)
-                    x = data.strip() + AUSWMENGE1.strip()
                     x_dict = dict()
                     x_dict[3] = AUSWMENGE1
                     x_dict[2] = real_data
@@ -457,7 +470,7 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SCOPE_IND":
                 if get_value_by_row_colname(data_ws, "SPC_IND", i) is not None:
                     if data is not None and data != "=":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC must be fixed scope"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "="), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QSCORE_AND_SHARE":
                 if data is not None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -472,7 +485,7 @@ def validate(wb, dataWb):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PRINT_IND":
                 if data is not None and data != "X":
-                    writeHeaderReport(active_ws, "ERROR", ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    writeHeaderReport(active_ws, "ERROR", report_data,  ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "FORMULA_IND":
                 if isQL:
                     if data is not None:
@@ -480,7 +493,7 @@ def validate(wb, dataWb):
                 else:
                     if get_value_by_row_colname(data_ws, "FORMEL1", i) is not None:
                         if data is None or data != "X":
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("FORMULA_IND conflict with FORMEL1"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "FORMEL1":
                 if isQL:
                     if data is not None:
