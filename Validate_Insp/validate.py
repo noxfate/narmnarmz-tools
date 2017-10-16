@@ -26,7 +26,7 @@ ValidateError = enum(
     )
 
 cur_path = os.path.dirname(__file__)
-new_unit_path = os.path.join(cur_path,'..', 'resource','Dict', 'unit.XLSX')
+new_unit_path = os.path.join(cur_path,'..', 'resource','Dict', 'unit.xlsx')
 new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary V1.0.XLSX')
 
 val_dict_wb = openExcelFile(new_val_dict_path)

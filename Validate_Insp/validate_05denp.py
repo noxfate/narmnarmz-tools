@@ -160,55 +160,55 @@ def validate(wb, dataWb):
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data is not None and len(data) > 8:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNAL":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if not isNumeric(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
                 if data is not None and len(data) > 2:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)            
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VORNR":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 if not isNumOnly(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MERKNR":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 if not isNumOnly(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ZUORDNR":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 if not isNumeric(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MATNR":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data is not None and len(data) > 40:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 if not check_same_matassign_by_MATNR(dataWb, key_data_dict, real_data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Material doesn't exist in Material Assignment"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MATKX":
                 if data is not None and len(data) > 40:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS_A":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 if not find_in_dict("03-Plant", 1, real_data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LIFNR":
                 if data is not None and len(data) > 10:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DEC_PLACES":
                 if isQL:
                     if data is not None:
@@ -217,14 +217,14 @@ def validate(wb, dataWb):
                     if data is not None and not isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i) 
                     if data is not None and len(data) > 3:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)             
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEAS_UNIT":
                 if isQL:
                     if data is not None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: MEAS_UNIT must be blank"), i) 
                 else:
                     if data is not None and len(data) > 6:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)            
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SOLLWERT":
                 if isQL:
                     if data is not None:
@@ -233,7 +233,7 @@ def validate(wb, dataWb):
                     if data is not None and not isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i) 
                     if data is not None and len(data) > 16:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                     dec = get_decimal_places(data_ws, i)
                     if not checkDecimalPlace(dec, real_data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Decimal place"), i)
@@ -264,7 +264,7 @@ def validate(wb, dataWb):
                     if data is None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Selected set cannot be blank"), i) 
                     if data is not None and len(data) > 8:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                     QWERKAUSW = get_value_by_row_colname(data_ws, "QWERKAUSW", i)
                     x = QWERKAUSW.strip() + data.strip()
                     if find_in_dict("08-Selected Set", 1, x) is None:
@@ -277,7 +277,7 @@ def validate(wb, dataWb):
                     if data is None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Plant for Selected set cannot be blank"), i) 
                     if data is not None and len(data) > 4:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGHT[1].format(field_descr), i) 
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                     AUSWMENGE1 = get_value_by_row_colname(data_ws, "AUSWMENGE1", i)
                     x = data.strip() + AUSWMENGE1.strip()
                     if find_in_dict("08-Selected Set", 1, x) is None:

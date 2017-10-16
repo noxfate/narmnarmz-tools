@@ -8,7 +8,7 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 from NarmError import *
 
 cur_path = os.path.dirname(__file__)
-new_unit_path = os.path.join(cur_path, 'resource','Dict', 'unit.XLSX')
+new_unit_path = os.path.join(cur_path, 'resource','Dict', 'unit.xlsx')
 
 def openDialog():
     root = Tkinter.Tk()
@@ -25,7 +25,14 @@ def openExcelFile(filePath):
 unit_wb = openExcelFile(new_unit_path)
 
 def findColumnLetterByColNameAndStartRow(worksheet, value, rowNumber):
-    for i in range(1, worksheet.max_column+1):
+    if isinstance(worksheet.max_column, str) and worksheet.title == "Unit":
+        max_col = 6
+    elif isinstance(worksheet.max_column, str) and worksheet.title == "Sampling":
+        max_col = 2
+    else:
+        max_col = worksheet.max_column
+
+    for i in range(1, max_col+1):
         text = worksheet[get_column_letter(i)+str(rowNumber)].value
         if (text == value):
             return get_column_letter(i)

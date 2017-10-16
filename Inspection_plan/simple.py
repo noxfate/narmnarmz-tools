@@ -24,11 +24,13 @@ def run():
     except TypeError:
         err = traceback.format_exc()
         easygui.msgbox("TypeError: Maybe this happen because the program can't find field in Excel\n\n"+str(err))
+        print(err)
     except UnitConversionError as unit:
         easygui.msgbox("Value Not Found: cannot find this following data in unit.xlsx\n\n"+str(unit))
+        print(unit)
     except:
         err = traceback.format_exc()
-        # print(err)
+        print(err)
         easygui.msgbox("Unexpected Error: "+str(err))
 
 def composeFileName(fileFullPath):
