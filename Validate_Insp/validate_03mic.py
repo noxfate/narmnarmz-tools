@@ -144,7 +144,7 @@ def validate(wb, dataWb):
         elif len(found_QL) != 0 and len(found_QN) == 0:
             isQL = True
         elif len(found_QL) == 0 and len(found_QN) == 0:
-            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Not Found in both MICQL, MICQN"), i)
+            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Doesn't exist"), i)
             continue
         else:
             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Found in both MICQL, MICQN"), i)
@@ -212,7 +212,7 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEAS_VALUE_CONFI":
                 if isQL:
                     if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: QUANTITATIVE_IND must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Qualitative: MEAS_VALUE_CONFI must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if data is None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -357,10 +357,10 @@ def validate(wb, dataWb):
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i) # upper
                         if v1 is not None:
                             if real_data < v1:
-                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if v2 is not None:
                             if real_data > v2:
-                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
 
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZUN":
                 if isQL:
@@ -381,10 +381,10 @@ def validate(wb, dataWb):
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i) # upper
                         if v1 is not None:
                             if real_data > v1:
-                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Target Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if v2 is not None:
                             if real_data > v2:
-                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Upper Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZOB":
                 if isQL:
                     if data is not None:
@@ -404,10 +404,10 @@ def validate(wb, dataWb):
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZUN", i) # lower
                         if v1 is not None:
                             if real_data < v1:
-                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Target Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if v2 is not None:
                             if real_data < v2:
-                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit or Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Lower Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
 
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "AUSWMENGE1":
                 if isQL:
