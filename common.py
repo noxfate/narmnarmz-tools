@@ -3,9 +3,12 @@ import tkFileDialog
 import tkMessageBox
 import os
 import openpyxl
+import sys
 import itertools
 from openpyxl.utils import get_column_letter, column_index_from_string
 from NarmError import *
+
+sys.dont_write_bytecode = True
 
 cur_path = os.path.dirname(__file__)
 new_unit_path = os.path.join(cur_path, 'resource','Dict', 'unit.xlsx')
@@ -36,10 +39,12 @@ def findColumnLetterByColNameAndStartRow(worksheet, value, rowNumber):
         text = worksheet[get_column_letter(i)+str(rowNumber)].value
         if (text == value):
             return get_column_letter(i)
+    return None
 
 def findCellInColumnByValue(worksheet, col, value, headerRow):
     if isinstance(col, str):
-        col_n = findColumnLetterByColNameAndStartRow(worksheet, col, headerRow)
+        col_letter = findColumnLetterByColNameAndStartRow(worksheet, col, headerRow)
+        col_n = column_index_from_string(col_letter)
     elif isinstance(col, int):
         col_n = col
     else:
@@ -49,7 +54,6 @@ def findCellInColumnByValue(worksheet, col, value, headerRow):
         return None
     for i in range(1, worksheet.max_row+1):
         cell_val = worksheet.cell(row=i, column=col_n).value
-        # print(cell_val, type(cell_val)," : ",value, type(value))
         if (cell_val is not None) and (compareCellValue(cell_val, value)):
             return worksheet.cell(row=i, column=col_n)
     return None

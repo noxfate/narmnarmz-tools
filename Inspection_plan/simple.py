@@ -8,6 +8,7 @@ import time
 from openpyxl.utils import get_column_letter
 from common import *
 import sys, traceback
+from NarmError import UnitConversionError
 
 def run():
     filePath = openDialog()
