@@ -99,7 +99,7 @@ def validate(wb, dataWb):
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 8:
+                if data is not None and len(data) > 15:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNAL":
                 if data is None:
