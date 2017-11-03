@@ -445,6 +445,8 @@ def validate(wb, dataWb):
                 if data is not None and find_in_dict("09-Method",3, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QMTB_WERKS":
+                if data is not None and get_value_by_row_colname(data_ws, "PMETHODE", i) is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("PMETHODE conflict with QMTB_WERKS"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if data is not None and find_in_dict("09-Method",2, real_data) is None:

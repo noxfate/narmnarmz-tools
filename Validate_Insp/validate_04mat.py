@@ -115,11 +115,11 @@ def validate(wb, dataWb):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data is not None and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if find_in_dict("03-Plant", 1, real_data) is None:
+                if data is not None and find_in_dict("03-Plant", 1, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                #if data is None:
+                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data != "01012017":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012017"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MATNR":
