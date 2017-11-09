@@ -11,6 +11,12 @@ def writeHeaderReport(ws, status, data, errorMsg, debug=None):
     new_row.append(debug)
     insert_new_row(ws, new_row)    
 
+def get_value_by_row_colname(ws, colname, row):
+    MIC_HEADER = 7
+    col = findColumnLetterByColNameAndStartRow(ws, colname, MIC_HEADER)
+    return ws[col + str(row)].value
+'''
+
 def check_same_MatAssign_by_meinh(dataWb, keyDict, meinh_data):
     mat_ws = dataWb.get_sheet_by_name("04 - Mat. Assign")
     found = find_by_keys(mat_ws, 2, 2, keyDict)
@@ -22,22 +28,23 @@ def check_same_MatAssign_by_meinh(dataWb, keyDict, meinh_data):
     MEINS_col = findColumnLetterByColNameAndStartRow(mat_ws, "MEINS", 2)
     MEINS = mat_ws[MEINS_col + str(row)].value
     return MEINS == meinh_data
-
+'''
 
 def validate(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
-    DATA_TAB_NAME = "01 - Header" # sheet name to find data
-    DATA_ROW_COUNT = 2 # how many row to skip in header
+    DATA_TAB_NAME = "Task List Header" # sheet name to find data
+    DATA_ROW_COUNT = 7 # how many row to skip in header
     DATA_FIELD_ROW = 1
-    DATA_HEADER_ROW = 2 # what row to find by field
+    DATA_HEADER_ROW = 7 # what row to find by field
     ROW_START = 2 # row to start writing data
     IS_FREEZE = True # wanna freeze header ?
 
-    active_ws = wb.get_sheet_by_name("01 - Header")
+    active_ws = wb.get_sheet_by_name("1. Task List Header")
     if (IS_FREEZE):
         active_ws.freeze_panes = "A"+ str(ROW_START)
     data_ws = dataWb.get_sheet_by_name(DATA_TAB_NAME)
     n_of_data = data_ws.max_row - DATA_ROW_COUNT
+
 
     # CHECK Addtional Condition 1-2
     PLNNR_col = findColumnLetterByColNameAndStartRow(data_ws, "PLNNR", DATA_HEADER_ROW)
@@ -52,7 +59,7 @@ def validate(wb, dataWb):
         d["PLNAL"] = PLNAL
         match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond1", match_cond_1)
-
+        '''
         VERWE_col = findColumnLetterByColNameAndStartRow(data_ws, "VERWE", DATA_HEADER_ROW)
         VERWE = data_ws[VERWE_col+str(i)].value
         d = dict()
@@ -60,15 +67,31 @@ def validate(wb, dataWb):
         d["PLNNR"] = PLNNR
         match_cond_2 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond2", match_cond_2)
+        '''
+
+        #Check operation
+        header_ws = dataWb.get_sheet_by_name("TaskList Operation")
+        d = dict()
+        d["PLNNR"] = PLNNR
+        d["PLNAL"] = PLNAL
+        match_cond_2 = find_by_keys(header_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
 
         WERKS = data_ws[WERKS_col + str(i)].value
         KTEXT = data_ws[KTEXT_col + str(i)].value
+    
         if len(match_cond_1) > 1:
             data = [PLNNR, PLNAL, WERKS, KTEXT]
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
+
+        if len(match_cond_2) < 1:
+            data = [PLNNR, PLNAL, WERKS, KTEXT]
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 2. Task List Operation"), "N="+str(len(match_cond_2)))
+
+        '''  
         if len(match_cond_2) > 1:
             data = [PLNNR, PLNAL, WERKS, KTEXT]
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Duplicate usage within Group"), "N="+str(len(match_cond_2)))
+        '''
     
     print("Fin Additional Condition")
 
@@ -95,7 +118,54 @@ def validate(wb, dataWb):
                 data = str(real_data)
             else:
                 data = real_data
-                
+
+            if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
+                if data is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                if data is not None and len(data) > 15:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
+                if data != "01012017":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012017"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNAL":
+                if data is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                if not isNumeric(data):
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
+                if data is not None and len(data) > 2:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "KTEXT":
+                if data is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                if data is not None and len(data) > 40:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STRAT":
+                if data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS":
+                if data is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                if data != get_value_by_row_colname(data_ws, "WERKS2", i):
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Planning Plant not match with Plant for Work Center"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ARBID":
+                if data is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                if data is not None and len(data) > 8:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
+                if data is not None and find_in_dict("04-Work Center", 3, real_data.upper()) is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS2":
+                if data is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                if data is not None and len(data) > 4:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
+                if data is not None and find_in_dict("04-Work Center", 2, real_data) is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VERWE":
+                if data != "4":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "4"), i)
+
+'''                
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
@@ -173,5 +243,6 @@ def validate(wb, dataWb):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
                 if data is not None and len(data) > 3:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-            # else:
-            #     writeHeaderReport(active_ws, "", report_data, "Success")
+                else:
+                    writeHeaderReport(active_ws, "", report_data, "Success")
+                    '''

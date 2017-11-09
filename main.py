@@ -1,6 +1,7 @@
 import common
 from Inspection_plan import simple
 from Validate_Insp import validate
+from Validate_TaskList import validate
 import sys
 from Tkinter import *
 
@@ -19,14 +20,21 @@ def sel():
         validate.run()
         root.quit()
         root.destroy()
+    elif var.get() == 3:
+    	validate.run()
+    	root.quit()
+    	root.destroy()
 
 root = Tk()
 var = IntVar()
-R1 = Radiobutton(root, text="Run Inspection Plan", variable=var, value=1, command=sel)
+R1 = Radiobutton(root, text="Convert Inspection Plan", variable=var, value=1, command=sel)
 R1.pack( anchor = W )
 
-R2 = Radiobutton(root, text="Run Validate Inspection Plan", variable=var, value=2, command=sel)
+R2 = Radiobutton(root, text="Validate Inspection Plan", variable=var, value=2, command=sel)
 R2.pack( anchor = W )
+
+R3 = Radiobutton(root, text="Validate Task List", variable=var, value=3, command=sel)
+R3.pack( anchor = W )
 
 label = Label(root)
 label.pack()
