@@ -1,7 +1,7 @@
 from common import *
 from openpyxl.utils import get_column_letter
 import openpyxl
-from validate import ValidateError, find_in_dict
+from validateTL import ValidateError, find_in_dict
 
 def get_value_by_row_colname(ws, colname, row):
     MIC_HEADER = 7

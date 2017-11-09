@@ -1,7 +1,7 @@
 import common
 from Inspection_plan import simple
 from Validate_Insp import validate
-from Validate_TaskList import validate
+from Validate_TaskList import validateTL
 import sys
 from Tkinter import *
 
@@ -21,7 +21,7 @@ def sel():
         root.quit()
         root.destroy()
     elif var.get() == 3:
-    	validate.run()
+    	validateTL.run()
     	root.quit()
     	root.destroy()
 
