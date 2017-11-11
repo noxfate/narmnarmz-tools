@@ -131,6 +131,11 @@ def find_by_keys(ws, headerRow, dataRowStart, keyDict):
     return result
 
 def check_duplicate_key(ws, headerRow, dataRowStart, keyDict):
+    """
+    return
+            True: if keys are duplicate
+            False: if keys are not duplicate
+    """
     DATA_ROW_COUNT = dataRowStart
     DATA_HEADER_ROW = headerRow
 
@@ -138,12 +143,14 @@ def check_duplicate_key(ws, headerRow, dataRowStart, keyDict):
     for k in keyDict.keys():
         key_col_dict[k] = findColumnLetterByColNameAndStartRow(ws, k, DATA_HEADER_ROW)
 
+
     found_final = []
     i = 1
     while i < ws.max_row + 1 and len(found_final) <= 1:
         found = []
         for k in keyDict.keys():
-            key_val = ws.cell(row=i, column=key_col_dict[k]).value
+            col_n = column_index_from_string(key_col_dict[k])
+            key_val = ws.cell(row=i, column=col_n).value
             if (key_val is not None) and (compareCellValue(key_val, keyDict[k])):
                 found.append(i)
             else:
@@ -151,6 +158,7 @@ def check_duplicate_key(ws, headerRow, dataRowStart, keyDict):
         if len(found) == len(keyDict):
             found_final.append(i)
         i = i+1
+
     return len(found_final) > 1
 
 
