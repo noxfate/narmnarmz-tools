@@ -24,6 +24,12 @@ def sel():
     	validateTL.run()
     	root.quit()
     	root.destroy()
+    '''
+    elif var.get() == 3:
+    	validateR.run()
+    	root.quit()
+    	root.destroy()
+    '''
 
 root = Tk()
 var = IntVar()
@@ -35,7 +41,11 @@ R2.pack( anchor = W )
 
 R3 = Radiobutton(root, text="Validate Task List", variable=var, value=3, command=sel)
 R3.pack( anchor = W )
-
+'''
+R4 = Radiobutton(root, text="Validate Recipe", variable=var, value=4, command=sel)
+R4.pack( anchor = W )
+'''
 label = Label(root)
 label.pack()
+root.quit()
 root.mainloop()

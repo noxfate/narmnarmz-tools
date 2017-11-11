@@ -58,7 +58,7 @@ def validate(wb, dataWb):
         d["PLNAL"] = PLNAL
         d["VORNR"] = VORNR
         match_cond_2 = find_by_keys(header_ws, 6, 7, d)
-        #print("Cond2", match_cond_2)
+        print("Cond2", match_cond_2)
 
         SUMLI = data_ws[SUMLI_col + str(i)].value
         if len(match_cond_1) > 1:
@@ -72,6 +72,7 @@ def validate(wb, dataWb):
 
     # Check By Field
     key = ["PLNNR", "PLNAL", "VORNR"]
+    #i = row / J= Column
     for i in range(DATA_ROW_COUNT+1, n_of_data + DATA_ROW_COUNT+1):
         for j in range(1, data_ws.max_column +1):
             report_data = [
@@ -93,7 +94,9 @@ def validate(wb, dataWb):
                 data = str(real_data)
             else:
                 data = real_data
-                
+
+            #if get_column_letter(j) == "A"
+
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)

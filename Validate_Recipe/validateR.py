@@ -56,11 +56,7 @@ def find_multiple_in_dict(sheetName, inputDict):
     return result
 
 
-import validate_01header
-import validate_02operation
-import validate_03mic
-import validate_04unplan
-import validate_05plan
+import validate_Recipe
 
 def run():
     filePath = openDialog()
@@ -100,35 +96,19 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
         wb.remove_sheet(wb.get_sheet_by_name(i))    
 
     print("....Start Building....")
-    print("....Validating 1. Task List Header....")
-    validate_01header.validate(wb, datamodelwb)
-    print("....Validating 2. Task List Operation....")
-    validate_02operation.validate(wb, datamodelwb)    
-    #print("....Validating 4.1 Task List Planned Service. ....")
-    #validate_05plan.validate(wb, datamodelwb)
-    print("....Validating 4.2 Task List Unplanned Service....")
-    validate_04unplan.validate(wb, datamodelwb)    
-    #print("....Validating 5. Inspection Characteristic")
-    #validate_03mic.validate(wb, datamodelwb)
+    print("....Validating Recipe....")
+    validate_Recipe.validate(wb, datamodelwb)
     print("Output: ", fileName)
     wb.save(fileName)
 
 def configFileStructure():
     output_sheets = [
-        "1. Task List Header", "2. Task List Operation", "4.1 Task List Planned Service", "4.2 Task List Unplanned Service", "5. Inspection Characteristic"
+        "Recipe_Error"
         ] # index (order) DOES MATTER!!
     main_header = []
-    header_01 = ["Status", "Group", "Group Counter", "Planning Plant", "Group Counter Description", "Error Message"]
-    header_02 = ["Status", "Group", "Group Counter", "Operation/Activity", "Operation short text", "Error Message"]
-    header_03 = ["Status", "Group", "Group Counter", "Operation/Activity", "Line Number", "Error Message"]
-    header_04 = ["Status", "Group", "Group Counter", "Operation", "Overall Limit", "Error Message"]
-    header_05 = ["Status", "Group", "Group Counter", "Operation/Activity", "Characteristic number", "Error Message"]
+    header_01 = ["Status", "Recipe Group", "Recipe", "Operation", "Char.", "Error Message"]
 
     # append order MUST match sheet names in [output_sheets]
     main_header.append(header_01)
-    main_header.append(header_02)
-    main_header.append(header_03)
-    main_header.append(header_04)
-    main_header.append(header_05)
     result = dict(itertools.izip(output_sheets, main_header))
     return result
