@@ -130,6 +130,31 @@ def find_by_keys(ws, headerRow, dataRowStart, keyDict):
     result = set.intersection(*found)
     return result
 
+def check_duplicate_key(ws, headerRow, dataRowStart, keyDict):
+    DATA_ROW_COUNT = dataRowStart
+    DATA_HEADER_ROW = headerRow
+
+    key_col_dict = dict()
+    for k in keyDict.keys():
+        key_col_dict[k] = findColumnLetterByColNameAndStartRow(ws, k, DATA_HEADER_ROW)
+
+    found_final = []
+    i = 1
+    while i < ws.max_row + 1 and len(found_final) <= 1:
+        found = []
+        for k in keyDict.keys():
+            key_val = ws.cell(row=i, column=key_col_dict[k]).value
+            if (key_val is not None) and (compareCellValue(key_val, keyDict[k])):
+                found.append(i)
+            else:
+                break
+        if len(found) == len(keyDict):
+            found_final.append(i)
+        i = i+1
+    return len(found_final) > 1
+
+
+
 def calAfterPoint(x):
     if not '.' in x:
         return 0
