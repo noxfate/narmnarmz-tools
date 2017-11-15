@@ -143,7 +143,6 @@ def check_duplicate_key(ws, headerRow, dataRowStart, keyDict):
     for k in keyDict.keys():
         key_col_dict[k] = findColumnLetterByColNameAndStartRow(ws, k, DATA_HEADER_ROW)
 
-
     found_final = []
     i = 1
     while i < ws.max_row + 1 and len(found_final) <= 1:
@@ -161,6 +160,36 @@ def check_duplicate_key(ws, headerRow, dataRowStart, keyDict):
 
     return len(found_final) > 1
 
+
+def is_key_exist(ws, headerRow, dataRowStart, keyDict):
+    """
+    return
+            True: if keys are exist in {ws}
+            False: if keys are not exist in {ws}
+    """
+    DATA_ROW_COUNT = dataRowStart
+    DATA_HEADER_ROW = headerRow
+
+    key_col_dict = dict()
+    for k in keyDict.keys():
+        key_col_dict[k] = findColumnLetterByColNameAndStartRow(ws, k, DATA_HEADER_ROW)
+
+    found_final = []
+    i = 1
+    while i < ws.max_row + 1 and len(found_final) <= 1:
+        found = []
+        for k in keyDict.keys():
+            col_n = column_index_from_string(key_col_dict[k])
+            key_val = ws.cell(row=i, column=col_n).value
+            if (key_val is not None) and (compareCellValue(key_val, keyDict[k])):
+                found.append(i)
+            else:
+                break
+        if len(found) == len(keyDict):
+            found_final.append(i)
+            return True
+        i = i + 1
+    return False
 
 
 def calAfterPoint(x):
