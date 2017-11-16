@@ -122,6 +122,8 @@ def validate(wb, dataWb):
             else:
                 data = real_data
             
+            #if get_column_letter(j) == "A"
+
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)

@@ -107,7 +107,7 @@ def validate(wb, dataWb):
         # match_cond_2 = find_by_keys(opr_ws, 2, 2, d)
         cond_2 = check_duplicate_key(opr_ws, 2, 2, d)
         # print("Cond2", match_cond_2)
-
+		
         # if len(match_cond_1) > 1:
         #     writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
         # if len(match_cond_2) < 1:
@@ -115,8 +115,7 @@ def validate(wb, dataWb):
         if cond_1:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "row="+str(i))
         if cond_2:
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group does not exist in 2. Task List Operation"), "row="+str(i))
-
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group does not exist in 02 - Operation"), "row="+str(i))
     
     print("Fin Additional Condition")
 

@@ -45,14 +45,16 @@ def validate(wb, dataWb):
         d["PLNAL"] = PLNAL
         d["WERKS_A"] = WERKS_A
         d["MATNR"] = MATNR
-        match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+        cond_1 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+        #match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond1", match_cond_1)
 
         header_ws = dataWb.get_sheet_by_name("01 - Header")
         d = dict()
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
-        match_cond_2 = find_by_keys(header_ws, 2, 2, d)
+        cond_2 = check_duplicate_key(header_ws, 2, 2, d)
+        #match_cond_2 = find_by_keys(header_ws, 2, 2, d)
         # print("Cond2", match_cond_2)
 
         MEINS = data_ws[MEINS_col + str(i)].value
@@ -63,14 +65,18 @@ def validate(wb, dataWb):
         match_cond_3 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
 
         DATUV = data_ws[DATUV_col + str(i)].value
-        if len(match_cond_1) > 1:
-            data = [PLNNR, PLNAL, DATUV, MATNR]
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
-        if len(match_cond_2) < 1:
-            data = [PLNNR, PLNAL, DATUV, MATNR]
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 01-Header"), "N="+str(len(match_cond_2)))
-        if len(match_cond_3) < 1:
-            data = [PLNNR, PLNAL, DATUV, MATNR]
+        data = [PLNNR, PLNAL, DATUV, MATNR]
+        #if len(match_cond_1) > 1:
+            #data = [PLNNR, PLNAL, DATUV, MATNR]
+            #writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
+        #if len(match_cond_2) < 1:
+            #data = [PLNNR, PLNAL, DATUV, MATNR]
+            #writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 01-Header"), "N="+str(len(match_cond_2)))
+        if cond_1:
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "row="+str(i))
+        if cond_2:
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group does not exist in 02 - Operation"), "row="+str(i))
+        if len(match_cond_3) < 1:            
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Material has different Units"), "N="+str(len(match_cond_3)))
 
     print("Fin Additional Condition")
