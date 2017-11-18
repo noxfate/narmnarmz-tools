@@ -1,7 +1,7 @@
 import common
 from Inspection_plan import simple
 from Validate_Insp import validate
-from Validate_TaskList import validateTL
+#from Validate_TaskList import validateTL
 import sys
 from Tkinter import *
 
@@ -39,8 +39,8 @@ R1.pack( anchor = W )
 R2 = Radiobutton(root, text="Validate Inspection Plan", variable=var, value=2, command=sel)
 R2.pack( anchor = W )
 
-R3 = Radiobutton(root, text="Validate Task List", variable=var, value=3, command=sel)
-R3.pack( anchor = W )
+#R3 = Radiobutton(root, text="Validate Task List", variable=var, value=3, command=sel)
+#R3.pack( anchor = W )
 '''
 R4 = Radiobutton(root, text="Validate Recipe", variable=var, value=4, command=sel)
 R4.pack( anchor = W )

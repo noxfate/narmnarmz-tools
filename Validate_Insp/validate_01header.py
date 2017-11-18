@@ -44,17 +44,20 @@ def validate(wb, dataWb):
     PLNAL_col = findColumnLetterByColNameAndStartRow(data_ws, "PLNAL", DATA_HEADER_ROW)
     WERKS_col = findColumnLetterByColNameAndStartRow(data_ws, "WERKS", DATA_HEADER_ROW)
     KTEXT_col = findColumnLetterByColNameAndStartRow(data_ws, "KTEXT", DATA_HEADER_ROW)
+    VERWE_col = findColumnLetterByColNameAndStartRow(data_ws, "VERWE", DATA_HEADER_ROW)
     for i in range(DATA_ROW_COUNT+1, n_of_data + DATA_ROW_COUNT+1):
         PLNNR = data_ws[PLNNR_col + str(i)].value
         PLNAL = data_ws[PLNAL_col + str(i)].value
+        WERKS = data_ws[WERKS_col + str(i)].value
+        KTEXT = data_ws[KTEXT_col + str(i)].value
+
         d = dict()
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
         cond_1 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         #match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond1", match_cond_1)
-
-        VERWE_col = findColumnLetterByColNameAndStartRow(data_ws, "VERWE", DATA_HEADER_ROW)
+        
         VERWE = data_ws[VERWE_col+str(i)].value
         d = dict()
         d["VERWE"] = VERWE
@@ -63,8 +66,7 @@ def validate(wb, dataWb):
         #match_cond_2 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond2", match_cond_2)
 
-        WERKS = data_ws[WERKS_col + str(i)].value
-        KTEXT = data_ws[KTEXT_col + str(i)].value
+        
         data = [PLNNR, PLNAL, WERKS, KTEXT]
         #if len(match_cond_1) > 1:
             #data = [PLNNR, PLNAL, WERKS, KTEXT]

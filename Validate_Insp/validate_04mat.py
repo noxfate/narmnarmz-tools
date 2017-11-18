@@ -53,7 +53,7 @@ def validate(wb, dataWb):
         d = dict()
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
-        cond_2 = check_duplicate_key(header_ws, 2, 2, d)
+        cond_2 = is_key_exist(header_ws, 2, 2, d)
         #match_cond_2 = find_by_keys(header_ws, 2, 2, d)
         # print("Cond2", match_cond_2)
 
@@ -74,7 +74,7 @@ def validate(wb, dataWb):
             #writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 01-Header"), "N="+str(len(match_cond_2)))
         if cond_1:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "row="+str(i))
-        if cond_2:
+        if not cond_2:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group does not exist in 02 - Operation"), "row="+str(i))
         if len(match_cond_3) < 1:            
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Material has different Units"), "N="+str(len(match_cond_3)))

@@ -22,7 +22,7 @@ def check_same_MatAssign_MEINS_by_meinh(dataWb, keyDict, meinh_data):
     found.sort()
     row = found[0] if len(found) >= 1 else 0
     if row == 0:
-        return False
+        return True
     MEINS_col = findColumnLetterByColNameAndStartRow(mat_ws, "MEINS", 2)
     MEINS = mat_ws[MEINS_col + str(row)].value
     if meinh_data == MEINS:
@@ -84,7 +84,7 @@ def validate(wb, dataWb):
         d = dict()
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
-        cond_2 = check_duplicate_key(header_ws, 2, 2, d)
+        cond_2 = is_key_exist(header_ws, 2, 2, d)
         #match_cond_2 = find_by_keys(header_ws, 2, 2, d)
         # print("Cond2", match_cond_2)
        
@@ -96,7 +96,7 @@ def validate(wb, dataWb):
             #writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 01-Header"), "N="+str(len(match_cond_2)))
         if cond_1:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "row="+str(i))
-        if cond_2:
+        if not cond_2:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group does not exist in 01 - Header"), "row="+str(i))
 
     print("Fin Additional Condition")
@@ -144,7 +144,7 @@ def validate(wb, dataWb):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 if data is not None and find_in_dict("04-Work Center", 2, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
-                if not check_same_header_by_werks(dataWb, key_data_dict, real_data):
+                elif not check_same_header_by_werks(dataWb, key_data_dict, real_data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Plants not mapping with Header"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
                 #if data is None:
