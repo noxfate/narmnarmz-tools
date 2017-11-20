@@ -54,30 +54,28 @@ def validate(wb, dataWb):
         d = dict()
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
-        cond_1 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
-        #match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+        #cond_1 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+        match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond1", match_cond_1)
         
         VERWE = data_ws[VERWE_col+str(i)].value
         d = dict()
         d["VERWE"] = VERWE
         d["PLNNR"] = PLNNR
-        cond_2 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
-        #match_cond_2 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+        #cond_2 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+        match_cond_2 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond2", match_cond_2)
 
         
         data = [PLNNR, PLNAL, WERKS, KTEXT]
-        #if len(match_cond_1) > 1:
-            #data = [PLNNR, PLNAL, WERKS, KTEXT]
-            #writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
-        #if len(match_cond_2) > 1:
-            #data = [PLNNR, PLNAL, WERKS, KTEXT]
-            #writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Duplicate usage within Group"), "N="+str(len(match_cond_2)))
-        if cond_1:
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "row="+str(i))
-        if cond_2:
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Duplicate usage within Group"), "row="+str(i))
+        if len(match_cond_1) > 1:
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
+        if len(match_cond_2) > 1:
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Duplicate usage within Group"), "N="+str(len(match_cond_2)))
+        #if cond_1:
+            #writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "row="+str(i))
+        #if cond_2:
+            #writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Duplicate usage within Group"), "row="+str(i))
 
     print("Fin Additional Condition")
 

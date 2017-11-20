@@ -66,7 +66,7 @@ import validate_03mic
 import validate_04mat
 import validate_05denp
 
-def run():
+def run(varSheet):
     filePath = openDialog()
     # filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
     start_time = time.time()
@@ -74,7 +74,7 @@ def run():
         file_structure = configFileStructure()
         data = openExcelFile(filePath)        
         output_filename = composeFileName(filePath)
-        newValidateInspExcel(file_structure, data, output_filename)
+        newValidateInspExcel(file_structure, data, output_filename,varSheet)
         print("--- %s seconds ---" % (time.time() - start_time))
         easygui.msgbox("Your output is "+output_filename+", which is in the same directory that your selected file. \n\nGood luck, have fun!!\n\nExecutime (s): "+str((time.time() - start_time)), title="Success!")
     except TypeError:
@@ -92,7 +92,7 @@ def run():
 def composeFileName(fileFullPath):
     return "ERR_"+os.path.basename(fileFullPath)
 
-def newValidateInspExcel(structure, datamodelwb, fileName):
+def newValidateInspExcel(structure, datamodelwb, fileName,varSheet):
     wb = openpyxl.Workbook()
     old_sheet_list = wb.get_sheet_names()
     for i in structure:
@@ -104,16 +104,30 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
         wb.remove_sheet(wb.get_sheet_by_name(i))    
 
     print("....Start Building....")
-    print("....Validating 01 - Header....")
-    validate_01header.validate(wb, datamodelwb)
-    print("....Validating 02 - Operaion....")
-    validate_02operation.validate(wb, datamodelwb)
-    print("....Validating 03 - MIC....")
-    validate_03mic.validate(wb, datamodelwb)
-    print("....Validating 04 - Mat. Assign....")
-    validate_04mat.validate(wb, datamodelwb)
-    print("....Validating 05 - Denp. Char. ....")
-    validate_05denp.validate(wb, datamodelwb)
+
+    for item in varSheet:
+        
+        if item==1:
+            print("....Validating 01 - Header....")
+            validate_01header.validate(wb, datamodelwb)
+            #print varSheet[i-1]
+        if item==2:
+            print("....Validating 02 - Operaion....")
+            validate_02operation.validate(wb, datamodelwb)
+            #print varSheet[i-1]
+        if item==3:
+            print("....Validating 03 - MIC....")
+            validate_03mic.validate(wb, datamodelwb)
+            #print varSheet[i-1]
+        if item==4:
+            print("....Validating 04 - Mat. Assign....")
+            validate_04mat.validate(wb, datamodelwb)
+            #print varSheet[i-1]
+        if item==5:
+            print("....Validating 05 - Denp. Char. ....")
+            validate_05denp.validate(wb, datamodelwb)
+            #print varSheet[i-1]
+        
     print("Output: ", fileName)
     wb.save(fileName)
 
