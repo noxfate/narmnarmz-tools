@@ -164,9 +164,9 @@ def validate(wb, dataWb):
         elif len(found_QL) == 0 and len(found_QN) == 0:
             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Doesn't exist"), i)
             continue
-        else:
-            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Found in both MICQL, MICQN"), i)
-            continue
+        #else:
+            #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Found in both MICQL, MICQN"), i)
+            #continue
 
         for j in range(1, data_ws.max_column +1):
             field_descr = data_ws.cell(row=DATA_FIELD_ROW, column=j).value

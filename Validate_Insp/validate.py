@@ -73,7 +73,7 @@ def run(varSheet):
     try:
         file_structure = configFileStructure()
         data = openExcelFile(filePath)        
-        output_filename = composeFileName(filePath)
+        output_filename = composeFileName(filePath,varSheet)
         newValidateInspExcel(file_structure, data, output_filename,varSheet)
         print("--- %s seconds ---" % (time.time() - start_time))
         easygui.msgbox("Your output is "+output_filename+", which is in the same directory that your selected file. \n\nGood luck, have fun!!\n\nExecutime (s): "+str((time.time() - start_time)), title="Success!")
@@ -89,8 +89,11 @@ def run(varSheet):
         easygui.msgbox("Unexpected Error: "+str(err))
 
 
-def composeFileName(fileFullPath):
-    return "ERR_"+os.path.basename(fileFullPath)
+def composeFileName(fileFullPath, varSheet):
+    sheet = ""
+    for item in varSheet:
+        sheet = sheet+str(item)
+    return "ERR_"+sheet+"_"+os.path.basename(fileFullPath)
 
 def newValidateInspExcel(structure, datamodelwb, fileName,varSheet):
     wb = openpyxl.Workbook()

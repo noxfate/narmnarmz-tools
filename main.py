@@ -14,9 +14,9 @@ def sel():
     selection = "You selected the option " + str(var.get())
     label.config(text = selection)
     if var.get() == 1:
-        simple.run()
         root.quit()
         root.destroy()
+        simple.run()
     elif var.get() == 2:
         if ws_header.get() == 1:
             varSheet.append(1)
@@ -28,18 +28,18 @@ def sel():
             varSheet.append(4)
         if ws_depchar.get() == 1:
             varSheet.append(5)
-        validate.run(varSheet)
         root.quit()
         root.destroy()
+        validate.run(varSheet)
     elif var.get() == 3:
+        root.quit()
+        root.destroy()
     	validateTL.run()
-    	root.quit()
-    	root.destroy()
-    
     elif var.get() == 3:
+        root.quit()
+        root.destroy()
     	validateR.run()
-    	root.quit()
-    	root.destroy()
+    	
 
 def ValidateInsp():
 
