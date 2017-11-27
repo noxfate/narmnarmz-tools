@@ -215,3 +215,5 @@ def compareCellValue(x, y):
     else:
         return str(x).strip() == str(y).strip()
 
+def isNull(x):
+    return x is None or x == ''

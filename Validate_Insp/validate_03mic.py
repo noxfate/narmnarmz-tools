@@ -33,6 +33,8 @@ def get_01header_SLWBEZ_by_key(dataWb, keyDict):
 def get_value_by_row_colname(ws, colname, row):
     MIC_HEADER = 3
     col = findColumnLetterByColNameAndStartRow(ws, colname, MIC_HEADER)
+    if ws[col+str(row)].value == '':
+        return None
     return ws[col + str(row)].value
 
 def check_same_matassign_by_MEINS(dataWb, keyDict, data):
@@ -258,7 +260,7 @@ def validate(wb, dataWb):
                          writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Qualitative: SPC_IND must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:                    
                     SPC_CRIT = get_value_by_row_colname(data_ws, "SPC_CRITERION_KEY", i)
-                    if SPC_CRIT is None and data is not None:
+                    if isNull(SPC_IND) and not isNull(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC_IND Conflict with SPC_CRITERION_KEY"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     elif SPC_CRIT is not None and data != "X":
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -268,7 +270,7 @@ def validate(wb, dataWb):
                          writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Qualitative: SPC_CRITERION_KEY must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     SPC_IND = get_value_by_row_colname(data_ws, "SPC_IND", i)
-                    if SPC_IND is None and data is not None:
+                    if isNull(SPC_IND) and not isNull(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC_IND Conflict with SPC_CRITERION_KEY"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     elif SPC_IND is not None and data != "070":
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "070"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
