@@ -91,7 +91,7 @@ def validate(wb, dataWb):
         MERKNR = data_ws[MERKNR_col + str(i)].value
 
         data = [PLNNR, PLNAL, VORNR, MERKNR]
-        if (PLNNR is None or PLNAL is None or VORNR is None or MERKNR is None):
+        if (PLNNR is None or PLNAL is None or VORNR is None or MERKNR is None or len(str(VORNR))!=4 or len(str(MERKNR))!=4):
             #writeHeaderReport(active_ws, "WARNING", data, ValidateError.UNDEFINED[1].format("Some keys are null and will be skip"), "row="+str(i))
             continue
 
@@ -291,7 +291,6 @@ def validate(wb, dataWb):
                     MIC_SPC = get_value_by_row_colname(data_ws, "SPC_IND", i)
                     if str(VERWMERKM)[0] == 'F':
                         if data != 'FFF0NLAB':
-                            print("ERROR HERE!")
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     elif isNull(Header_SLWBEZ) and isNull(MIC_SPC):
                         found = find_in_dict("07-Samp", 1, real_data)

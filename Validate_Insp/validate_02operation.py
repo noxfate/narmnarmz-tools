@@ -67,10 +67,17 @@ def validate(wb, dataWb):
     VORNR_col = findColumnLetterByColNameAndStartRow(data_ws, "VORNR", DATA_HEADER_ROW)
     LTXA1_col = findColumnLetterByColNameAndStartRow(data_ws, "LTXA1", DATA_HEADER_ROW)
     for i in range(DATA_ROW_COUNT+1, n_of_data + DATA_ROW_COUNT+1):
+
         PLNNR = data_ws[PLNNR_col + str(i)].value
         PLNAL = data_ws[PLNAL_col + str(i)].value
         VORNR = data_ws[VORNR_col + str(i)].value
         LTXA1 = data_ws[LTXA1_col + str(i)].value
+
+        data = [PLNNR, PLNAL, VORNR, LTXA1]
+        if (PLNNR is None or PLNAL is None or VORNR is None or len(str(VORNR))!=4):
+            #writeHeaderReport(active_ws, "WARNING", data, ValidateError.UNDEFINED[1].format("Some keys are null and will be skip"), "row="+str(i))
+            continue
+
         d = dict()
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
@@ -87,7 +94,6 @@ def validate(wb, dataWb):
         match_cond_2 = find_by_keys(header_ws, 2, 2, d)
         # print("Cond2", match_cond_2)
         
-        data = [PLNNR, PLNAL, VORNR, LTXA1]
         if len(match_cond_1) > 1:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
         if len(match_cond_2) < 1:
