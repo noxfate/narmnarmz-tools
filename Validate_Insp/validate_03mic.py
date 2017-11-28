@@ -289,17 +289,19 @@ def validate(wb, dataWb):
                 elif not isNull(data):
                     Header_SLWBEZ = get_01header_SLWBEZ_by_key(dataWb, key_data_dict)
                     MIC_SPC = get_value_by_row_colname(data_ws, "SPC_IND", i)
-                    if str(VERWMERKM)[0] == 'F' and data != "FFF0NLAB":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    elif Header_SLWBEZ is None and MIC_SPC is None:
+                    if str(VERWMERKM)[0] == 'F':
+                        if data != 'FFF0NLAB':
+                            print("ERROR HERE!")
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    elif isNull(Header_SLWBEZ) and isNull(MIC_SPC):
                         found = find_in_dict("07-Samp", 1, real_data)
-                    elif Header_SLWBEZ is None and MIC_SPC is not None:
+                    elif isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
                         found = find_in_dict("07-SampSPC", 1, real_data)
-                    elif Header_SLWBEZ is not None and MIC_SPC is None:
+                    elif not isNull(Header_SLWBEZ) and isNull(MIC_SPC):
                         found = find_in_dict("07-SampPoint", 1, real_data)
-                    elif Header_SLWBEZ is not None and MIC_SPC is not None:
+                    elif not isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
                         found = find_in_dict("07-SampPointSPC", 1, real_data)
-                    if found is None:
+                    if isNull(found):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PROBEMGEH":
                 if isNull(data):
