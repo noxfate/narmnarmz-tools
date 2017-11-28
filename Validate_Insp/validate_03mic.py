@@ -286,7 +286,7 @@ def validate(wb, dataWb):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if not isNull(data) and len(data) > 8:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNull(data):
+                elif not isNull(data):
                     Header_SLWBEZ = get_01header_SLWBEZ_by_key(dataWb, key_data_dict)
                     MIC_SPC = get_value_by_row_colname(data_ws, "SPC_IND", i)
                     if Header_SLWBEZ is None and MIC_SPC is None:
