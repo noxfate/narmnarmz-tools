@@ -371,9 +371,9 @@ def validate(wb, dataWb):
                 else:
                     if not isNull(data) and not isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    if not isNull(data) and len(data) > 16:
+                    elif not isNull(data) and len(data) > 16:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    if get_value_by_row_colname(data_ws, "TARGET_VAL_CHECK", i) is not None:
+                    elif get_value_by_row_colname(data_ws, "TARGET_VAL_CHECK", i) is not None:
                         if isNull(data):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with TARGET_VAL_CHECK"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         dec = get_decimal_places(data_ws, i)
@@ -400,9 +400,9 @@ def validate(wb, dataWb):
                 else:
                     if not isNull(data) and not isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    if not isNull(data) and len(data) > 16:
+                    elif not isNull(data) and len(data) > 16:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    if get_value_by_row_colname(data_ws, "LW_TOL_LMT_IND", i) is not None:
+                    elif get_value_by_row_colname(data_ws, "LW_TOL_LMT_IND", i) is not None:
                         if isNull(data):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with LW_TOL_LMT_IND"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if not isNumeric(data):
@@ -428,9 +428,9 @@ def validate(wb, dataWb):
                 else:
                     if not isNull(data) and not isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    if not isNull(data) and len(data) > 16:
+                    elif not isNull(data) and len(data) > 16:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    if get_value_by_row_colname(data_ws, "UP_TOL_LMT_IND", i) is not None:
+                    elif get_value_by_row_colname(data_ws, "UP_TOL_LMT_IND", i) is not None:
                         if isNull(data):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Conflict with UP_TOL_LMT_IND"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         if not isNumeric(data):
