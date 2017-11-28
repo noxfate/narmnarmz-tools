@@ -27,10 +27,10 @@ def sel():
         if ws_matassign.get() == 1:
             varSheet.append(4)
         if ws_depchar.get() == 1:
-            varSheet.append(5)
+            varSheet.append(5)        
+        validate.run(varSheet)
         root.quit()
         root.destroy()
-        validate.run(varSheet)
     elif var.get() == 3:
         root.quit()
         root.destroy()

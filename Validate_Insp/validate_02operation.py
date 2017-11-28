@@ -124,64 +124,64 @@ def validate(wb, dataWb):
                 data = real_data
                 
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
-                if data is None:
+                if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 15:
+                if not isNull(data) and len(data) > 15:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNAL":
-                if data is None:
+                if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if not isNumeric(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                if data is not None and len(data) > 2:
+                if not isNull(data) and len(data) > 2:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS":
-                if data is None:
+                if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 4:
+                if not isNull(data) and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if data is not None and find_in_dict("04-Work Center", 2, real_data) is None:
+                if not isNull(data) and find_in_dict("04-Work Center", 2, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
                 elif not check_same_header_by_werks(dataWb, key_data_dict, real_data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Plants not mapping with Header"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
-                #if data is None:
+                #if isNull(data):
                     #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data != "01012017":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012017"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VORNR":
-                if data is None:
+                if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 4:
+                if not isNull(data) and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 if not isNumOnly(real_data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ARBPL":
-                if data is None:
+                if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 8:
+                if not isNull(data) and len(data) > 8:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if data is not None and find_in_dict("04-Work Center", 3, real_data.upper()) is None:
+                if not isNull(data) and find_in_dict("04-Work Center", 3, real_data.upper()) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STEUS":
-                #if data is None:
+                #if isNull(data):
                     #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data != "QM02":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "QM02"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LTXA1":
-                if data is None:
+                if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 40:
+                if not isNull(data) and len(data) > 40:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "BMSCH":
-                #if data is None:
+                #if isNull(data):
                     #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data != "1":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEINH":
-                if data is None:
+                if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 6:
+                if not isNull(data) and len(data) > 6:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 if not check_same_MatAssign_MEINS_by_meinh(dataWb, key_data_dict, real_data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Unit not mapping with material master"), i)
