@@ -56,7 +56,7 @@ def get_decimal_places(ws, row):
     MIC_HEADER = 3
     col = findColumnLetterByColNameAndStartRow(ws, "DEC_PLACES", MIC_HEADER)
     dec = ws[col + str(row)].value
-    if dec is None or (isinstance(dec, str) and dec.strip() == '') or (isinstance(dec, unicode) and dec.strip() == ''):
+    if dec is None or (isinstance(dec, str) and dec.strip() == '') or (isinstance(dec, unicode) and dec.strip() == '') or not isNumOnly(dec):
         return 0
     return dec
 
