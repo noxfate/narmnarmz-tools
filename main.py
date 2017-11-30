@@ -2,6 +2,7 @@ import common
 from Inspection_plan import simple
 from Validate_Insp import validate
 #from Validate_TaskList import validateTL
+from  Validate_Recipe import validateR
 import sys
 from Tkinter import *
 
@@ -27,18 +28,20 @@ def sel():
         if ws_matassign.get() == 1:
             varSheet.append(4)
         if ws_depchar.get() == 1:
-            varSheet.append(5)        
+            varSheet.append(5)
         validate.run(varSheet)
-        root.quit()
+        root.quit() 
         root.destroy()
     elif var.get() == 3:
         root.quit()
         root.destroy()
     	validateTL.run()
-    elif var.get() == 3:
+    elif var.get() == 4:
+        root.quit()
+        validateR.run()
         root.quit()
         root.destroy()
-    	validateR.run()
+    	
     	
 
 def ValidateInsp():
@@ -74,10 +77,10 @@ R2.pack( anchor = W )
 
 #R3 = Radiobutton(root, text="Validate Task List", variable=var, value=3, command=sel)
 #R3.pack( anchor = W )
-'''
+
 R4 = Radiobutton(root, text="Validate Recipe", variable=var, value=4, command=sel)
 R4.pack( anchor = W )
-'''
+
 label = Label(root)
 label.pack()
 root.quit()

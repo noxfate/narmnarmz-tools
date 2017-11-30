@@ -34,26 +34,30 @@ val_dict_wb = openExcelFile(new_val_dict_path)
 def find_in_dict(sheetName, colNumber, input):
     global val_dict_wb
     ws = val_dict_wb.get_sheet_by_name(sheetName)
-    found = findCellInColumnByValue(ws, colNumber, input, 0)
+    if input is not None:
+        found = findCellInColumnByValue(ws, colNumber, input, 0)
     # print("Find: ["+sheetName+"] "+str(input), ", Found: "+str(found))
-    if found is None:
-        return None
-    return found
+        if found is None:
+            return None
+        return found
+    return None
 
 def find_multiple_in_dict(sheetName, inputDict):
     global val_dict_wb
     ws = val_dict_wb.get_sheet_by_name(sheetName)
     found = []
-    for k in inputDict.keys():
-        cells = findCellListInColumnByValue(ws, k, inputDict[k], 1)
-        rows = []
-        if cells is not None:
-            cells_list = list(cells)
-            for i in range(len(cells_list)):
-                rows.append(cells_list[i].row)
-        found.append(set(rows))
-    result = set.intersection(*found)
-    return result
+    if inputDict is not None:
+        for k in inputDict.keys():
+            cells = findCellListInColumnByValue(ws, k, inputDict[k], 1)
+            rows = []
+            if cells is not None:
+                cells_list = list(cells)
+                for i in range(len(cells_list)):
+                    rows.append(cells_list[i].row)
+            found.append(set(rows))
+        result = set.intersection(*found)
+        return result
+    return set()
 
 
 import validate_Recipe
@@ -96,19 +100,19 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
         wb.remove_sheet(wb.get_sheet_by_name(i))    
 
     print("....Start Building....")
-    print("....Validating Recipe....")
+
+    print("....Validate Recipe....")
     validate_Recipe.validate(wb, datamodelwb)
+        
     print("Output: ", fileName)
     wb.save(fileName)
 
 def configFileStructure():
-    output_sheets = [
-        "Recipe_Error"
-        ] # index (order) DOES MATTER!!
+    output_sheets = ["QM_Recipe"] # index (order) DOES MATTER!!
     main_header = []
-    header_01 = ["Status", "Recipe Group", "Recipe", "Operation", "Char.", "Error Message"]
+    QM_Recipe = ["Status", "Group", "Group Counter", "Operation", "Char. No.", "Error Message"]
 
     # append order MUST match sheet names in [output_sheets]
-    main_header.append(header_01)
+    main_header.append(QM_Recipe)
     result = dict(itertools.izip(output_sheets, main_header))
     return result
