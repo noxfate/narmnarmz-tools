@@ -1,7 +1,7 @@
 import common
 from Inspection_plan import simple
 from Validate_Insp import validate
-#from Validate_TaskList import validateTL
+from Validate_TaskList import validateTL
 from  Validate_Recipe import validateR
 import sys
 from Tkinter import *
@@ -33,9 +33,9 @@ def sel():
         root.quit() 
         root.destroy()
     elif var.get() == 3:
+        validateTL.run()
         root.quit()
         root.destroy()
-    	validateTL.run()
     elif var.get() == 4:
         root.quit()
         validateR.run()
@@ -75,8 +75,8 @@ R1.pack( anchor = W )
 R2 = Radiobutton(root, text="Validate Inspection Plan", variable=var, value=2, command=ValidateInsp)
 R2.pack( anchor = W )
 
-#R3 = Radiobutton(root, text="Validate Task List", variable=var, value=3, command=sel)
-#R3.pack( anchor = W )
+R3 = Radiobutton(root, text="Validate Task List", variable=var, value=3, command=sel)
+R3.pack( anchor = W )
 
 R4 = Radiobutton(root, text="Validate Recipe", variable=var, value=4, command=sel)
 R4.pack( anchor = W )

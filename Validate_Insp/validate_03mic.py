@@ -62,6 +62,7 @@ def get_decimal_places(ws, row):
 
 
 def validate(wb, dataWb):
+
     ## CONFIG HERE NA N'Narm ##
     DATA_TAB_NAME = "03 - MIC" # sheet name to find data
     DATA_ROW_COUNT = 3 # how many row to skip in header
@@ -69,8 +70,9 @@ def validate(wb, dataWb):
     DATA_HEADER_ROW = 3 # what row to find by field
     ROW_START = 2 # row to start writing data
     IS_FREEZE = True # wanna freeze header ?
-
     active_ws = wb.get_sheet_by_name("03 - MIC")
+    opr_ws = dataWb.get_sheet_by_name("02 - Operation")
+
     if (IS_FREEZE):
         active_ws.freeze_panes = "A"+ str(ROW_START)
     data_ws = dataWb.get_sheet_by_name(DATA_TAB_NAME)
@@ -104,7 +106,7 @@ def validate(wb, dataWb):
         #cond_1 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond1", match_cond_1)
 
-        opr_ws = dataWb.get_sheet_by_name("02 - Operation")
+        #opr_ws = dataWb.get_sheet_by_name("02 - Operation")
         d = dict()
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
@@ -234,8 +236,7 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEAS_VALUE_CONFI":
                 if isQL:
                     if not isNull(data):
-                        if data != '':
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Qualitative: MEAS_VALUE_CONFI must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Qualitative: MEAS_VALUE_CONFI must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if isNull(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -289,6 +290,7 @@ def validate(wb, dataWb):
                 elif not isNull(data):
                     Header_SLWBEZ = get_01header_SLWBEZ_by_key(dataWb, key_data_dict)
                     MIC_SPC = get_value_by_row_colname(data_ws, "SPC_IND", i)
+                    found = None
                     if str(VERWMERKM)[0] == 'F':
                         if data != 'FFF0NLAB':
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -383,15 +385,16 @@ def validate(wb, dataWb):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         v1 = get_value_by_row_colname(data_ws, "TOLERANZUN", i) # lower
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i) # upper
-                        try:
-                            if v1 is not None:
-                                if float(real_data) < float(v1):
-                                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                            if v2 is not None:
-                                if float(real_data) > float(v2):
-                                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                        except ValueError:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format("SOLLWERT, TOLERANZUN, TOLERANZOB"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        if not isNull(real_data):
+                            try:
+                                if v1 is not None:
+                                    if float(real_data) < float(v1):
+                                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Lower Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                if v2 is not None:
+                                    if float(real_data) > float(v2):
+                                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                            except ValueError:
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format("SOLLWERT, TOLERANZUN, TOLERANZOB"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
 
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZUN":
                 if isQL:
@@ -412,15 +415,16 @@ def validate(wb, dataWb):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Decimal place"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         v1 = get_value_by_row_colname(data_ws, "SOLLWERT", i) # target
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZOB", i) # upper
-                        try:
-                            if v1 is not None:
-                                if float(real_data )> float(v1):
-                                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Target Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                            if v2 is not None:
-                                if float(real_data )> float(v2):
-                                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Upper Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                        except ValueError:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format("SOLLWERT, TOLERANZUN, TOLERANZOB"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        if not isNull(real_data):    
+                            try:
+                                if v1 is not None:
+                                    if float(real_data )> float(v1):
+                                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Target Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                if v2 is not None:
+                                    if float(real_data )> float(v2):
+                                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Lower Limit conflict with Upper Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                            except ValueError:
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format("SOLLWERT, TOLERANZUN, TOLERANZOB"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZOB":
                 if isQL:
                     if not isNull(data):
@@ -440,15 +444,16 @@ def validate(wb, dataWb):
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Decimal place"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         v1 = get_value_by_row_colname(data_ws, "SOLLWERT", i) # target
                         v2 = get_value_by_row_colname(data_ws, "TOLERANZUN", i) # lower
-                        try:
-                            if v1 is not None:
-                                if float(real_data )< float(v1):
-                                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Target Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                            if v2 is not None:
-                                if float(real_data )< float(v2):
-                                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Lower Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                        except ValueError:
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format("SOLLWERT, TOLERANZUN, TOLERANZOB"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        if not isNull(real_data):
+                            try:
+                                if v1 is not None:
+                                    if float(real_data )< float(v1):
+                                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Target Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                if v2 is not None:
+                                    if float(real_data )< float(v2):
+                                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Upper Limit conflict with Lower Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                            except ValueError:
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format("SOLLWERT, TOLERANZUN, TOLERANZOB"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "AUSWMENGE1":
                 if isQL:
                     if isNull(data):

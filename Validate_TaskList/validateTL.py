@@ -97,7 +97,14 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
         for j in range(len(structure[i])):
             sheet[get_column_letter(j+1)+'1'] = structure[i][j]
     for i in old_sheet_list:
-        wb.remove_sheet(wb.get_sheet_by_name(i))    
+        wb.remove_sheet(wb.get_sheet_by_name(i))
+
+
+    #QM08 = Inspection Plan
+    #QM14 = Task List
+    #QM23 = Recipe
+
+    obj = 'QM14'
 
     print("....Start Building....")
     print("....Validating 1. Task List Header....")
@@ -108,8 +115,8 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
     #validate_05plan.validate(wb, datamodelwb)
     print("....Validating 4.2 Task List Unplanned Service....")
     validate_04unplan.validate(wb, datamodelwb)    
-    #print("....Validating 5. Inspection Characteristic")
-    #validate_03mic.validate(wb, datamodelwb)
+    print("....Validating 5. Inspection Characteristic")
+    validate_03mic.validate(wb, datamodelwb)
     print("Output: ", fileName)
     wb.save(fileName)
 
