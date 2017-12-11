@@ -293,7 +293,7 @@ def validate(wb, dataWb):
                     found = None
                     if str(VERWMERKM)[0] == 'F':
                         if data != 'FFF0NLAB':
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedurev (FFF0NLAB)"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     elif isNull(Header_SLWBEZ) and isNull(MIC_SPC):
                         found = find_in_dict("07-Samp", 1, real_data)
                     elif isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
@@ -302,8 +302,8 @@ def validate(wb, dataWb):
                         found = find_in_dict("07-SampPoint", 1, real_data)
                     elif not isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
                         found = find_in_dict("07-SampPointSPC", 1, real_data)
-                    if isNull(found):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    # if isNull(found):
+                    #     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure (null)"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PROBEMGEH":
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
