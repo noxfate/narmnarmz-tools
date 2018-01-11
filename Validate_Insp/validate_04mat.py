@@ -35,6 +35,7 @@ def validate(wb, dataWb, varB):
     MATNR_col = findColumnLetterByColNameAndStartRow(data_ws, "MATNR", DATA_HEADER_ROW)
     WERKS_A_col = findColumnLetterByColNameAndStartRow(data_ws, "WERKS_A", DATA_HEADER_ROW)
     MEINS_col = findColumnLetterByColNameAndStartRow(data_ws, "MEINS", DATA_HEADER_ROW)
+    skip_cond_3 = set()
     for i in range(DATA_ROW_COUNT+1, n_of_data + DATA_ROW_COUNT+1):
         PLNNR = data_ws[PLNNR_col + str(i)].value
         PLNAL = data_ws[PLNAL_col + str(i)].value
@@ -57,13 +58,7 @@ def validate(wb, dataWb, varB):
         match_cond_2 = find_by_keys(header_ws, 2, 2, d)
         # print("Cond2", match_cond_2)
 
-        MEINS = data_ws[MEINS_col + str(i)].value
-        d = dict()
-        d["PLNNR"] = PLNNR
-        d["PLNAL"] = PLNAL
-        d["MEINS"] = MEINS
 
-        match_cond_3 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
 
         DATUV = data_ws[DATUV_col + str(i)].value
         data = [PLNNR, PLNAL, DATUV, MATNR]
@@ -71,8 +66,25 @@ def validate(wb, dataWb, varB):
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
         if len(match_cond_2) < 1:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 01-Header"), "N="+str(len(match_cond_2)))
-        if len(match_cond_3) < 1:            
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Materials with different units are assigned in same group"), "N="+str(len(match_cond_3)))    
+
+        # New Condition_3
+        if len(skip_cond_3) == 0 or i not in skip_cond_3:
+            MEINS = data_ws[MEINS_col + str(i)].value
+            d = dict()
+            d["PLNNR"] = PLNNR
+            d["PLNAL"] = PLNAL
+            match_cond_3_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+            d["MEINS"] = MEINS
+            match_cond_3_2 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+            if len(match_cond_3_1) != len(match_cond_3_2):
+                writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Materials with different units are assigned in same group"), "N=" + str(len(match_cond_3_1) - len(match_cond_3_2)))
+            skip_cond_3 = match_cond_3_1.union(match_cond_3_2)
+        else:
+            match_cond_3_1.discard(i)
+            match_cond_3_2.discard(i)
+            if i in skip_cond_3:
+                skip_cond_3.discard(i)
+
         #if cond_1:
             #writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "row="+str(i))
         #if not cond_2:
