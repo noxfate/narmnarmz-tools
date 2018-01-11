@@ -137,7 +137,7 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "KTEXT":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 40:
+                elif data is not None and len(data) > 40:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STRAT":
                 if data is not None:
@@ -145,25 +145,45 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != get_value_by_row_colname(data_ws, "WERKS2", i):
+                elif data != get_value_by_row_colname(data_ws, "WERKS2", i):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Planning Plant not match with Plant for Work Center"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ARBID":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 8:
+                elif data is not None and len(data) > 8:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if data is not None and find_in_dict("04-Work Center", 3, real_data.upper()) is None:
+                elif data is not None and find_in_dict("04-Work Center", 3, real_data.upper()) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS2":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 4:
+                elif data is not None and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if data is not None and find_in_dict("04-Work Center", 2, real_data) is None:
+                elif data is not None and find_in_dict("04-Work Center", 2, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VERWE":
                 if data != "4":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "4"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VAGRP":
+                if data is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                elif data is not None and len(data) > 3:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
+                elif data is not None and find_in_dict("01-Planner Group", 1, real_data) is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STATU":
+                if data != "4":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "4"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ANLZU":
+                if str(data) != "0" and str(data) != "1":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "0 or 1"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SLWBEZ":
+                if data is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                elif data is not None and len(data) > 3:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
+                elif data is not None and find_in_dict("05-Insp point", 1, real_data) is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
 
 '''                
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                

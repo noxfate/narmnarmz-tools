@@ -27,7 +27,7 @@ ValidateError = enum(
 
 cur_path = os.path.dirname(__file__)
 new_unit_path = os.path.join(cur_path,'..', 'resource','Dict', 'unit.xlsx')
-new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary V1.0.XLSX')
+new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary Task List.xlsx')
 
 val_dict_wb = openExcelFile(new_val_dict_path)
 
@@ -63,8 +63,8 @@ import validate_04unplan
 import validate_05plan
 
 def run():
-    filePath = openDialog()
-    # filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
+    #filePath = openDialog()
+    filePath = "C:/Users/A648978/Desktop/temp/SPEC Validate/03 Validate Task List/TMP_F_QM12_Task List.xlsx"
     start_time = time.time()
     try:
         file_structure = configFileStructure()
@@ -99,24 +99,17 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
     for i in old_sheet_list:
         wb.remove_sheet(wb.get_sheet_by_name(i))
 
-
-    #QM08 = Inspection Plan
-    #QM14 = Task List
-    #QM23 = Recipe
-
-    obj = 'QM14'
-
     print("....Start Building....")
-    print("....Validating 1. Task List Header....")
-    validate_01header.validate(wb, datamodelwb)
+    #print("....Validating 1. Task List Header....")
+    #validate_01header.validate(wb, datamodelwb)
     print("....Validating 2. Task List Operation....")
     validate_02operation.validate(wb, datamodelwb)    
     #print("....Validating 4.1 Task List Planned Service. ....")
     #validate_05plan.validate(wb, datamodelwb)
-    print("....Validating 4.2 Task List Unplanned Service....")
-    validate_04unplan.validate(wb, datamodelwb)    
-    print("....Validating 5. Inspection Characteristic")
-    validate_03mic.validate(wb, datamodelwb)
+    #print("....Validating 4.2 Task List Unplanned Service....")
+    #validate_04unplan.validate(wb, datamodelwb)    
+    #print("....Validating 5. Inspection Characteristic")
+    #validate_03mic.validate(wb, datamodelwb)
     print("Output: ", fileName)
     wb.save(fileName)
 

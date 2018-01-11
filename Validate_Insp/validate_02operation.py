@@ -46,7 +46,7 @@ def check_same_header_by_werks(dataWb, keyDict, data):
     return False
 
 
-def validate(wb, dataWb):
+def validate(wb, dataWb, varB):
     ## CONFIG HERE NA N'Narm ##
     DATA_TAB_NAME = "02 - Operation" # sheet name to find data
     DATA_ROW_COUNT = 2 # how many row to skip in header
@@ -144,9 +144,9 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS":
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if not isNull(data) and len(data) > 4:
+                elif not isNull(data) and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if not isNull(data) and find_in_dict("04-Work Center", 2, real_data) is None:
+                elif not isNull(data) and find_in_dict("04-Work Center", 2, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
                 elif not check_same_header_by_werks(dataWb, key_data_dict, real_data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Plants not mapping with Header"), i)

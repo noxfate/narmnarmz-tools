@@ -27,9 +27,8 @@ ValidateError = enum(
 
 cur_path = os.path.dirname(__file__)
 new_unit_path = os.path.join(cur_path,'..', 'resource','Dict', 'unit.xlsx')
-new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary V1.0.XLSX')
-
-val_dict_wb = openExcelFile(new_val_dict_path)
+#new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary V1.0.XLSX')
+#val_dict_wb = openExcelFile(new_val_dict_path)
 
 def find_in_dict(sheetName, colNumber, input):
     global val_dict_wb
@@ -62,15 +61,25 @@ def find_multiple_in_dict(sheetName, inputDict):
 
 import validate_Recipe
 
-def run():
+def run(varB):
+
     filePath = openDialog()
     # filePath = "D:/project/narmnarmz-tools/resource/TMP_QM12_Inspection Plan.xlsx"
     start_time = time.time()
+
+    if varB == "Factory":
+        new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary V1.0.XLSX')
+    else:
+        new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary Farm.xlsx')
+
+    global val_dict_wb
+    val_dict_wb = openExcelFile(new_val_dict_path)
+
     try:
         file_structure = configFileStructure()
         data = openExcelFile(filePath)        
         output_filename = composeFileName(filePath)
-        newValidateInspExcel(file_structure, data, output_filename)
+        newValidateInspExcel(file_structure, data, output_filename, varB)
         print("--- %s seconds ---" % (time.time() - start_time))
         easygui.msgbox("Your output is "+output_filename+", which is in the same directory that your selected file. \n\nGood luck, have fun!!\n\nExecutime (s): "+str((time.time() - start_time)), title="Success!")
     except TypeError:
@@ -88,7 +97,7 @@ def run():
 def composeFileName(fileFullPath):
     return "ERR_"+os.path.basename(fileFullPath)
 
-def newValidateInspExcel(structure, datamodelwb, fileName):
+def newValidateInspExcel(structure, datamodelwb, fileName, varB):
     wb = openpyxl.Workbook()
     old_sheet_list = wb.get_sheet_names()
     for i in structure:
@@ -102,7 +111,7 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
     print("....Start Building....")
 
     print("....Validate Recipe....")
-    validate_Recipe.validate(wb, datamodelwb)
+    validate_Recipe.validate(wb, datamodelwb, varB)
         
     print("Output: ", fileName)
     wb.save(fileName)

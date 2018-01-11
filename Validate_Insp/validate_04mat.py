@@ -13,7 +13,7 @@ def writeHeaderReport(ws, status, data, errorMsg, debug=None):
     new_row.append(debug)
     insert_new_row(ws, new_row)  
 
-def validate(wb, dataWb):
+def validate(wb, dataWb, varB):
     ## CONFIG HERE NA N'Narm ##
     DATA_TAB_NAME = "04 - Mat. Assign" # sheet name to find data
     DATA_ROW_COUNT = 2 # how many row to skip in header
@@ -62,6 +62,7 @@ def validate(wb, dataWb):
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
         d["MEINS"] = MEINS
+
         match_cond_3 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
 
         DATUV = data_ws[DATUV_col + str(i)].value
@@ -71,7 +72,7 @@ def validate(wb, dataWb):
         if len(match_cond_2) < 1:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 01-Header"), "N="+str(len(match_cond_2)))
         if len(match_cond_3) < 1:            
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Material has different Units"), "N="+str(len(match_cond_3)))    
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Materials with different units are assigned in same group"), "N="+str(len(match_cond_3)))    
         #if cond_1:
             #writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "row="+str(i))
         #if not cond_2:
@@ -118,9 +119,9 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS_A":
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if not isNull(data) and len(data) > 4:
+                elif not isNull(data) and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if not isNull(data) and find_in_dict("03-Plant", 1, real_data) is None:
+                elif varB == "Factory" and not isNull(data) and find_in_dict("03-Plant", 1, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
                 #if isNull(data):

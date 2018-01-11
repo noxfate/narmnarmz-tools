@@ -30,7 +30,7 @@ def get_value_by_row_colname(ws, colname, row):
         return None
     return ws[col + str(row)].value
 
-def validate(wb, dataWb):
+def validate(wb, dataWb, varB):
     ## CONFIG HERE NA N'Narm ##
     DATA_TAB_NAME = "QM_Recipe" # sheet name to find data
     DATA_ROW_COUNT = 2 # how many row to skip in header
@@ -147,8 +147,12 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SLWBEZ": #Inspection Point
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                elif not isNull(data) and data != "FH1":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "FH1"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                elif varB == "Factory":
+                    if not isNull(data) and data != "FHA":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "FHA"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                elif varB == "Farm":
+                    if not isNull(data) and data != "F01":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "F01"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PARL": #Partial-lot assign.
                 if not isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -427,10 +431,10 @@ def validate(wb, dataWb):
             	FORMULA_IND_FO = get_value_by_row_colname(data_ws, "FORMULA_IND_FO", i)
             	if not isNull(data) and data != "X":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "X"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-            	if isQL :
-            		if isNull(data):
-            			writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Qualitative: Mark 'X' at No Formula"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-            	elif not isQL:
+            	#if isQL :
+            		#if isNull(data):
+            			#writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Qualitative: Mark 'X' at No Formula"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+            	if not isQL:
             		if isNull(data) == isNull(FORMULA_IND_FO):
             			writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Mark 'X' either No Formula or Calc. charac."), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "FORMULA_IND_FO":
@@ -453,14 +457,24 @@ def validate(wb, dataWb):
             			writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Calc. charac conflict with Formula"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STICHPRVER":
                 MIC_SPC = get_value_by_row_colname(data_ws, "SPC_IND", i)
+                if varB == "Factory":
+                    SampPoint = "R7-SampPoint"
+                    SampPointSPC = "R7-SampPointSPC"
+                elif varB == "Farm":
+                    SampPoint = "07-SampPoint"
+                    SampPointSPC = "07-SampPointSPC"
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNull(data) and len(data) > 8:
+                elif not isNull(data) and len(data) > 8:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                elif str(VERWMERKM)[0] == 'F':
+                    found = "FFF0NLAB"
+                    if data != 'FFF0NLAB':
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 elif isNull(MIC_SPC):
-                    found = find_in_dict("R7-SampPoint", 1, real_data)
+                    found = find_in_dict(SampPoint, 1, real_data)
                 elif not isNull(MIC_SPC):
-                    found = find_in_dict("R7-SampPointSPC", 1, real_data)
+                    found = find_in_dict(SampPointSPC, 1, real_data)
                 if isNull(found):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PROBEMGEH":

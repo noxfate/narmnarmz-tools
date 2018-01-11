@@ -24,7 +24,7 @@ def check_same_MatAssign_by_meinh(dataWb, keyDict, meinh_data):
     return MEINS == meinh_data
 
 
-def validate(wb, dataWb):
+def validate(wb, dataWb, varB):
     ## CONFIG HERE NA N'Narm ##
     DATA_TAB_NAME = "01 - Header" # sheet name to find data
     DATA_ROW_COUNT = 2 # how many row to skip in header
@@ -58,13 +58,16 @@ def validate(wb, dataWb):
         match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond1", match_cond_1)
         
-        VERWE = data_ws[VERWE_col+str(i)].value
-        d = dict()
-        d["VERWE"] = VERWE
-        d["PLNNR"] = PLNNR
-        #cond_2 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
-        match_cond_2 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
-        # print("Cond2", match_cond_2)
+        if varB == "Factory":
+            VERWE = data_ws[VERWE_col+str(i)].value
+            d = dict()
+            d["VERWE"] = VERWE
+            d["PLNNR"] = PLNNR
+            #cond_2 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+            match_cond_2 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+            # print("Cond2", match_cond_2)
+        if varB == "Farm":
+            match_cond_2 = []
 
         
         data = [PLNNR, PLNAL, WERKS, KTEXT]
@@ -125,9 +128,9 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS":
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if not isNull(data) and len(data) > 4:
+                elif not isNull(data) and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if not isNull(data) and find_in_dict("03-Plant", 1, real_data) is None:
+                elif not isNull(data) and find_in_dict("03-Plant", 1, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
                 #if isNull(data):
@@ -152,9 +155,9 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEINH_H":
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if not isNull(data) and len(data) > 6:
+                elif not isNull(data) and len(data) > 6:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if not check_same_MatAssign_by_meinh(dataWb, key_data_dict, real_data):
+                elif not check_same_MatAssign_by_meinh(dataWb, key_data_dict, real_data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Unit not mapping with material master"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "KTEXT":
                 if isNull(data):
@@ -164,11 +167,11 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SLWBEZ":
                 if isNumeric(data) and not isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                if not isNull(data) and len(data) > 3:
+                elif not isNull(data) and len(data) > 3:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 #if not isNull(data) and data != "FH4":
                     #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "FH4"), i)
-                if not isNull(data) and find_in_dict("05-Insp point", 1, real_data) is None:
+                elif not isNull(data) and find_in_dict("05-Insp point", 1, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QPRZIEHVER":
                 if not isNumeric(data) and not isNull(data):
