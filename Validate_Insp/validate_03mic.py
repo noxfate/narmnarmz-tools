@@ -37,6 +37,8 @@ def get_value_by_row_colname(ws, colname, row):
         return None
     return ws[col + str(row)].value
 
+
+
 def check_same_matassign_by_MEINS(dataWb, keyDict, data):
     ws = dataWb.get_sheet_by_name("04 - Mat. Assign")
     keys = dict(keyDict)

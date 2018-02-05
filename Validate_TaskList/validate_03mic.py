@@ -34,22 +34,7 @@ def get_value_by_row_colname(ws, colname, row):
     MIC_HEADER = 2
     col = findColumnLetterByColNameAndStartRow(ws, colname, MIC_HEADER)
     return ws[col + str(row)].value
-'''
-def check_same_matassign_by_MEINS(dataWb, keyDict, data):
-    ws = dataWb.get_sheet_by_name("04 - Mat. Assign")
-    keys = dict(keyDict)
-    keys.pop("VORNR")
-    keys.pop("MERKNR")
-    found = find_by_keys(ws, 2, 2, keys)
-    found = list(found)
-    found.sort()
-    row = found[0] if len(found) >= 1 else 0
-    if row == 0:
-        return False
-    col = findColumnLetterByColNameAndStartRow(ws, "MEINS", 2)
-    WERKS = ws[col + str(row)].value
-    return data == WERKS
-'''
+
 def get_decimal_places(ws, row):
     MIC_HEADER = 3
     col = findColumnLetterByColNameAndStartRow(ws, "DEC_PLACES", MIC_HEADER)
@@ -57,7 +42,6 @@ def get_decimal_places(ws, row):
     if dec is None:
         return 0
     return dec
-
 
 def validate(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
@@ -276,14 +260,15 @@ def validate(wb, dataWb):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 elif not isNull(data):
                     MIC_SPC = get_value_by_row_colname(data_ws, "SPC_IND", i)
-                    found = False
-                    if isQL:
-                        if data != 'FHF3N1':
+                    found = None
+                    if str(VERWMERKM)[0] == 'F':
+                        found = "FFF0NLAB"
+                        if data != 'FFF0NLAB':
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    elif not isQL and isNull(MIC_SPC):
-                        found = find_in_dict("07-SampPoint", 1, real_data)
-                    elif not isQL and not isNull(MIC_SPC):
-                        found = find_in_dict("07-SampPointSPC", 1, real_data)
+                    elif isNull(MIC_SPC):
+                        found = find_in_dict("07-Samp", 1, real_data)
+                    elif not isNull(MIC_SPC):
+                        found = find_in_dict("07-SampSPC", 1, real_data)
                     if isNull(found):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PROBEMGEH":
@@ -465,14 +450,16 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PMETHODE":
                 if not isNull(data) and len(data) > 8:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNull(data) and find_in_dict("09-Method",3, real_data) is None:
+                elif not isNull(data) and get_value_by_row_colname(data_ws, "QMTB_WERKS", i) is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Method conflict with Plant for Inspection Method"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                elif not isNull(data) and find_in_dict("09-Method",3, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QMTB_WERKS":
                 if not isNull(data) and get_value_by_row_colname(data_ws, "PMETHODE", i) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("PMETHODE conflict with QMTB_WERKS"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNull(data) and len(data) > 4:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Method conflict with Plant for Inspection Method"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                elif not isNull(data) and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNull(data) and find_in_dict("09-Method",2, real_data) is None:
+                elif not isNull(data) and find_in_dict("09-Method",2, real_data) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PMTVERSION":
                 if not isNull(data):

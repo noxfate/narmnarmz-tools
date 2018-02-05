@@ -16,9 +16,9 @@ def sel():
     selection = "You selected the option " + str(varP.get())
     label.config(text = selection)
     if varP.get() == 1:
+        simple.run()
         root.quit()
         root.destroy()
-        simple.run()
     elif varP.get() == 2:
         Run.pack_forget()
         ValidateInsp()

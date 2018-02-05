@@ -16,40 +16,7 @@ def writeHeaderReport(ws, status, data, errorMsg, debug=None):
 def get_value_by_row_colname(ws, colname, row):
     MIC_HEADER = 7
     col = findColumnLetterByColNameAndStartRow(ws, colname, MIC_HEADER)
-    return ws[col + str(row)].value  
-'''
-def check_same_MatAssign_MEINS_by_meinh(dataWb, keyDict, meinh_data):
-    mat_ws = dataWb.get_sheet_by_name("04 - Mat. Assign")
-    keys = dict(keyDict)
-    keys.pop("VORNR")
-    found = find_by_keys(mat_ws, 2, 2, keys)
-    found = list(found)
-    found.sort()
-    row = found[0] if len(found) >= 1 else 0
-    if row == 0:
-        return False
-    MEINS_col = findColumnLetterByColNameAndStartRow(mat_ws, "MEINS", 2)
-    MEINS = mat_ws[MEINS_col + str(row)].value
-    if meinh_data == MEINS:
-        return True
-    return False  
-
-def check_same_header_by_werks(dataWb, keyDict, data):
-    ws = dataWb.get_sheet_by_name("01 - Header")
-    keys = dict(keyDict)
-    keys.pop("VORNR")
-    found = find_by_keys(ws, 2, 2, keys)
-    found = list(found)
-    found.sort()
-    row = found[0] if len(found) >= 1 else 0
-    if row == 0:
-        return False
-    col = findColumnLetterByColNameAndStartRow(ws, "WERKS", 2)
-    WERKS = ws[col + str(row)].value
-    if data == WERKS:
-        return True
-    return False
-'''
+    return ws[col + str(row)].value 
 
 def validate(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
@@ -147,6 +114,7 @@ def validate(wb, dataWb):
                 data = real_data
             
             STEUS = get_value_by_row_colname(data_ws,"STEUS",i) #Control Key
+            PLNNR = get_value_by_row_colname(data_ws, "PLNNR", i) #Group
 
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
                 if data is None:
@@ -193,163 +161,146 @@ def validate(wb, dataWb):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if data != "PM02" and data != "PM01" :
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "PM01 or PM02"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ANZZL":
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ANZZL": #Number of Capacity
                 if STEUS == "PM01":
                     if data is None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                     if data is isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
+                    if not checkDecimalPlace(1,data):
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Number of Capacity must be 1 decimal place"), i)
                 elif STEUS == "PM02":
                     if data is not None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ARBEI":
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ARBEI": #Work
                 if STEUS == "PM01":
                     if data is None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                     if data is isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
+                    if not checkDecimalPlace(1,data):
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Work must be 1 decimal place"), i)
                 elif STEUS == "PM02":
                     if data is not None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)            
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ARBEH":
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ARBEH": #Work Unit
                 if STEUS == "PM01":
                     if data != "H":
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "H"), i)
                 elif STEUS == "PM02":
                     if data is not None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("PM02: Work Unit must be blank"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DAUNE":
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DAUNE": # Duration Unit
                 if STEUS == "PM01":
                     if data != "H":
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "H"), i)
                 elif STEUS == "PM02":
                     if data is not None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("PM02: Duration Unit must be blank"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DAUNE1":
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DAUNE1": #Calculation Key
                 if STEUS == "PM01":
                     if data != "2":
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "2"), i)
                 elif STEUS == "PM02":
                     if data is not None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("PM02: Calculation Key must be blank"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DAUNO":
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DAUNO": #Duration
                 if STEUS == "PM01":
                     if data is None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                     if data is isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                    elif round(float(get_value_by_row_colname(data_ws,"ARBEI",i))/float(get_value_by_row_colname(data_ws,"ANZZL",i)), 1) != round(float(data), 1):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect Duration: Duration must be Work/Number of Capacitie"), i)
-                        #print("Duration: "+str(round(float(get_value_by_row_colname(data_ws,"ARBEI",i))/float(get_value_by_row_colname(data_ws,"ANZZL",i)), 1)))
-                        #print("Raw Data: "+str(round(float(data), 1)))
-                elif STEUS == "PM02":
-                    if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LARNT":
-                if STEUS == "PM01":
-                    if data is isNumeric(data):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                elif STEUS == "PM02":
-                    if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SAKTO":
-                if STEUS == "PM01":
-                    if data is not None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
-                elif STEUS == "PM02":
-                    if data != "5207030020":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "5207030020"), i)
-            
-            # else:
-            #     writeHeaderReport(active_ws, "", report_data, "Success")
-            
-    '''
-    # Check By Field
-    key = ["PLNNR", "PLNAL", "VORNR"]
-    for i in range(DATA_ROW_COUNT+1, n_of_data + DATA_ROW_COUNT+1):
-        for j in range(1, data_ws.max_column +1):
-            report_data = [
-                data_ws[PLNNR_col+str(i)].value, 
-                data_ws[PLNAL_col+str(i)].value,
-                data_ws[VORNR_col+str(i)].value,
-                data_ws[LTXA1_col+str(i)].value
-            ]
-            key_value = [
-                data_ws[PLNNR_col+str(i)].value, 
-                data_ws[PLNAL_col+str(i)].value,
-                data_ws[VORNR_col+str(i)].value
-            ]
-            key_data_dict = dict(itertools.izip(key,key_value))
-            field_descr = data_ws.cell(row=DATA_FIELD_ROW, column=j).value
+                    if not checkDecimalPlace(1,data):
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Duration be 1 decimal place"), i)
+                    else:
+                        #print(type(str(get_value_by_row_colname(data_ws,"ANZZL",i))))
 
-            real_data = data_ws.cell(row=i, column=j).value
-            if isinstance(real_data, int) or isinstance(real_data, long) or isinstance(real_data, float):
-                data = str(real_data)
-            else:
-                data = real_data
-                
-            if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 15:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNAL":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if not isNumeric(data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                if data is not None and len(data) > 2:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if data is not None and find_in_dict("04-Work Center", 2, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
-                if not check_same_header_by_werks(dataWb, key_data_dict, real_data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Plants not mapping with Header"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
-                #if data is None:
-                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "01012017":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012017"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VORNR":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if not isNumOnly(real_data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ARBPL":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 8:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if data is not None and find_in_dict("04-Work Center", 3, real_data.upper()) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STEUS":
-                #if data is None:
-                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "QM02":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "QM02"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LTXA1":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 40:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "BMSCH":
-                #if data is None:
-                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "1":
+                        ANZZL = get_value_by_row_colname(data_ws,"ANZZL",i)
+                        ARBEI = get_value_by_row_colname(data_ws,"ARBEI",i)
+
+                        if ANZZL is not None and ARBEI is not None:
+                            ANZZL = round(float(ANZZL),1)
+                            ARBEI = round(float(ARBEI),1)
+                            data = round(float(data),1)
+
+                            if ANZZL == 0 and ARBEI == 0 and data ==0:
+                                continue
+                            elif round(ARBEI/ANZZL,1) != round(data,1):
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect Duration: Duration must be Work/Number of Capacitie"), round(ARBEI/ANZZL,1))
+
+                elif STEUS == "PM02":
+                    if data is not None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+            
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LARNT": #Activity type
+                if STEUS == "PM01" and str(STEUS)[4:6] == "EC":
+                    if data is None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
+                    elif find_in_dict("10-Activity Type", 3, data) is None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Activity Type Doesn't exist"), i)
+                elif STEUS == "PM02":
+                    if data is not None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "KTSCH": #Standard text key
+                if data is not None and data != "CA_REP":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Standard Text Key must be CA_REP"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "BMVRG": #Operation Quantity
+                if STEUS == "PM01" and data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                elif STEUS == "PM02" and data != "1":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEINH":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 6:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if not check_same_MatAssign_MEINS_by_meinh(dataWb, key_data_dict, real_data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Unit not mapping with material master"), i)
-            # else:
-            #     writeHeaderReport(active_ws, "", report_data, "Success")
-    '''
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "BMEIH": #Unit of Measure
+                if STEUS == "PM01" and data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                elif STEUS == "PM02" and data != "AU":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "AU"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PEINH": #Price Unit
+                if STEUS == "PM01" and data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                elif STEUS == "PM02" and data != "1":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PREIS": #Net Price
+                if data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WAERS": #Currency
+                if STEUS == "PM01" and data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                elif STEUS == "PM02" and data != "THB":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "THB"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SAKTO": #Cost Element
+                if STEUS == "PM01":
+                    if data is not None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                elif STEUS == "PM02":
+                    if str(PLNNR)[5] == "C" and data != "5207030020":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Cost Element Conflit with Group structure"), i)
+                    elif str(PLNNR)[5] == "V" and data != "5205020010":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Cost Element Conflit with Group structure"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MATKL": #Material Group
+                if STEUS == "PM01" and data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                elif STEUS == "PM02" and data != "R5006":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "R5006"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "EKGRP": #Purchasing Group
+                if STEUS == "PM01" and data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                elif STEUS == "PM02" and str(PLNNR)[4:6] == "EC":
+                    if  data != "011":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Purchasing Group Conflit with Group structure"), i)
+                elif STEUS == "PM02" and str(PLNNR)[4:6] != "EC":
+                    if  data != "013":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Purchasing Group Conflit with Group structure"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LIFNR": #Vendor
+                if data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "EKORG": #Purchasing org
+                if STEUS == "PM01" and data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+                elif STEUS == "PM02" and data != "1000":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1000"), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "EBELN": #Agreement
+                if data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "EBELP": #Item of number
+                if data is not None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)

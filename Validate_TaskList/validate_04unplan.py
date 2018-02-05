@@ -18,6 +18,21 @@ def writeHeaderReport(ws, status, data, errorMsg, debug=None):
     new_row.append(debug)
     insert_new_row(ws, new_row)  
 
+def get_02Operation_STEUS_by_key(dataWb, keyDict):
+    ws = dataWb.get_sheet_by_name("TaskList Operation")
+    keys = dict(keyDict)
+    #keys.pop("VORNR")
+    #keys.pop("MERKNR")
+    found = find_by_keys(ws, 7, 8, keys)
+    found = list(found)
+    found.sort()
+    row = found[0] if len(found) >= 1 else 0
+    if row == 0:
+        return False
+    col = findColumnLetterByColNameAndStartRow(ws, "STEUS", 7)
+    STEUS = ws[col+str(row)].value
+    return STEUS
+
 def validate(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
     DATA_TAB_NAME = "Task List Unplanned Service" # sheet name to find data
@@ -32,7 +47,6 @@ def validate(wb, dataWb):
         active_ws.freeze_panes = "A"+ str(ROW_START)
     data_ws = dataWb.get_sheet_by_name(DATA_TAB_NAME)
     n_of_data = data_ws.max_row - DATA_ROW_COUNT
-
     
     # CHECK Addtional Condition 1-2
     PLNNR_col = findColumnLetterByColNameAndStartRow(data_ws, "PLNNR", DATA_HEADER_ROW)
@@ -48,25 +62,26 @@ def validate(wb, dataWb):
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
         d["VORNR"] = VORNR
+
         match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond1", match_cond_1)
         
-        #This condition not work T_T
-        header_ws = dataWb.get_sheet_by_name("Task List Planned Servie")
-        d = dict()
-        d["PLNNR"] = PLNNR
-        d["PLNAL"] = PLNAL
-        d["VORNR"] = VORNR
-        match_cond_2 = find_by_keys(header_ws, 6, 7, d)
-        print("Cond2", match_cond_2)
+        planned_ws = dataWb.get_sheet_by_name("Task List Planned Servie")
+        match_cond_2 = find_by_keys(planned_ws, 6, 7, d)
+        #print("Cond2", match_cond_2, len(match_cond_2))
+
+        operation_ws = dataWb.get_sheet_by_name("TaskList Operation")
+        match_cond_3 = find_by_keys(operation_ws, 7, 8, d)
+        #print("Cond2", match_cond_2, len(match_cond_2))
 
         SUMLI = data_ws[SUMLI_col + str(i)].value
-        if len(match_cond_1) > 1:
-            data = [PLNNR, PLNAL, VORNR, SUMLI]
+        data = [PLNNR, PLNAL, VORNR, SUMLI]
+        if len(match_cond_1) > 1:           
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))        
-        if len(match_cond_2) > 1:
-            data = [PLNNR, PLNAL, VORNR, SUMLI]
+        if len(match_cond_2) > 0:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Service shouldn't exist in both Planned and Unplanned"), "N="+str(len(match_cond_2)))
+        if len(match_cond_3) < 1:
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 2. Task List Operation"), "N="+str(len(match_cond_2)))
 
     print("Fin Additional Condition")
 
@@ -95,6 +110,10 @@ def validate(wb, dataWb):
             else:
                 data = real_data
 
+            STEUS = get_02Operation_STEUS_by_key(dataWb, key_data_dict) #Controy key
+            if STEUS == "PM01":
+                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("PM01 mustn't has Service Unplanned"), i)
+
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
@@ -118,16 +137,14 @@ def validate(wb, dataWb):
             	if data is not None and not isNumOnly(data):
             		writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
             	if data is None and get_value_by_row_colname(data_ws, "SUMNOLIM", i) is None:
-            		writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Overall Limit Conflict with Unlimited Indicator"), i)
-	
+            		writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Overall Limit Conflict with Unlimited Indicator"), i)	
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "COMMITMENT":
             	overall = get_value_by_row_colname(data_ws,"SUMLIMIT",i)
             	if data is not None and not isNumOnly(data):
             		writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-            	elif overall is not None and isNumOnly(overall):
+            	elif overall is not None and isNumOnly(overall) and data is not None:
             		if int(data) > int(overall):
             			writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Overall Limit Conflit with Expected Value"), i)
-
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WAERS":
             	if data != "THB":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "THB"), i)

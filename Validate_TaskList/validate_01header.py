@@ -15,20 +15,6 @@ def get_value_by_row_colname(ws, colname, row):
     MIC_HEADER = 7
     col = findColumnLetterByColNameAndStartRow(ws, colname, MIC_HEADER)
     return ws[col + str(row)].value
-'''
-
-def check_same_MatAssign_by_meinh(dataWb, keyDict, meinh_data):
-    mat_ws = dataWb.get_sheet_by_name("04 - Mat. Assign")
-    found = find_by_keys(mat_ws, 2, 2, keyDict)
-    found = list(found)
-    found.sort()
-    row = found[0] if len(found) >= 1 else 0
-    if row == 0:
-        return False
-    MEINS_col = findColumnLetterByColNameAndStartRow(mat_ws, "MEINS", 2)
-    MEINS = mat_ws[MEINS_col + str(row)].value
-    return MEINS == meinh_data
-'''
 
 def validate(wb, dataWb):
     ## CONFIG HERE NA N'Narm ##
@@ -59,15 +45,6 @@ def validate(wb, dataWb):
         d["PLNAL"] = PLNAL
         match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond1", match_cond_1)
-        '''
-        VERWE_col = findColumnLetterByColNameAndStartRow(data_ws, "VERWE", DATA_HEADER_ROW)
-        VERWE = data_ws[VERWE_col+str(i)].value
-        d = dict()
-        d["VERWE"] = VERWE
-        d["PLNNR"] = PLNNR
-        match_cond_2 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
-        # print("Cond2", match_cond_2)
-        '''
 
         #Check operation
         header_ws = dataWb.get_sheet_by_name("TaskList Operation")
@@ -87,11 +64,6 @@ def validate(wb, dataWb):
             data = [PLNNR, PLNAL, WERKS, KTEXT]
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 2. Task List Operation"), "N="+str(len(match_cond_2)))
 
-        '''  
-        if len(match_cond_2) > 1:
-            data = [PLNNR, PLNAL, WERKS, KTEXT]
-            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Duplicate usage within Group"), "N="+str(len(match_cond_2)))
-        '''
     
     print("Fin Additional Condition")
 
@@ -118,6 +90,8 @@ def validate(wb, dataWb):
                 data = str(real_data)
             else:
                 data = real_data
+
+            PLNNR = get_value_by_row_colname(data_ws, "PLNNR", i) #Group
 
             if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
                 if data is None:
@@ -169,8 +143,11 @@ def validate(wb, dataWb):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 elif data is not None and len(data) > 3:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                elif data is not None and find_in_dict("01-Planner Group", 1, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
+                elif data != "Q01" and str(PLNNR)[4:6] != "EC":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Planner Group Conflit with Group structure"), i)
+                elif data is not None and str(PLNNR)[4:6] == "EC":
+                    if data is not None and find_in_dict("01-Planner Group", 1, real_data) is None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect Planner Group"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STATU":
                 if data != "4":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "4"), i)
@@ -180,89 +157,11 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SLWBEZ":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                elif data is not None and len(data) > 3:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                elif data is not None and find_in_dict("05-Insp point", 1, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
-
-'''                
-            if data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNNR":                
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 15:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNAL":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if not isNumeric(data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                if data is not None and len(data) > 2:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VERWE":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 3:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if data is not None and find_in_dict("01-Usage", 1, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "WERKS":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 4:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if data is not None and find_in_dict("03-Plant", 1, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
-                #if data is None:
-                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "01012017":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012017"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STATU":
-                #if data is None:
-                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "4":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "4"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LOSVN":
-                #if data is None:
-                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "1":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LOSBS":
-                #if data is None:
-                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "99999999":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "99999999"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEINH_H":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 6:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                if not check_same_MatAssign_by_meinh(dataWb, key_data_dict, real_data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Unit not mapping with material master"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "KTEXT":
-                if data is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data is not None and len(data) > 40:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SLWBEZ":
-                if isNumeric(data) and data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                if data is not None and len(data) > 3:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                #if data is not None and data != "FH4":
-                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "FH4"), i)
-                if data is not None and find_in_dict("05-Insp point", 1, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QPRZIEHVER":
-                if not isNumeric(data) and data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                if data is not None and len(data) > 8:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QDYNREGEL":
-                if not isNumeric(data) and data is not None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                if data is not None and len(data) > 3:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                else:
-                    writeHeaderReport(active_ws, "", report_data, "Success")
-                    '''
+                elif str(PLNNR)[5] == "C" and data != "FHC":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
+                elif str(PLNNR)[5] == "V" and data != "FHD":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
+                elif str(PLNNR)[5] == "D" and data != "FHD":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
+                #elif data is not None and find_in_dict("05-Insp point", 1, real_data) is None:
+                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)

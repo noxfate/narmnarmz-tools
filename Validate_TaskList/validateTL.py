@@ -22,7 +22,7 @@ ValidateError = enum(
         FIXED_VALUE_X=["Fixed value X", "X must be capital letter"],
         DUPLICATE_KEY=["Duplicate", "Duplicate code"],
         DUPLICATE=["Duplicate", "Duplicate material assignment"],
-        UNDEFINED=["Undefined", "{}"]
+        UNDEFINED=["Undefined", "{}"],
     )
 
 cur_path = os.path.dirname(__file__)
@@ -63,8 +63,8 @@ import validate_04unplan
 import validate_05plan
 
 def run():
-    #filePath = openDialog()
-    filePath = "C:/Users/A648978/Desktop/temp/SPEC Validate/03 Validate Task List/TMP_F_QM12_Task List.xlsx"
+    filePath = openDialog()
+    #filePath = "C:/Users/A648978/Desktop/temp/SPEC Validate/03 Validate Task List/TMP_F_QM12_Task List2.xlsx"
     start_time = time.time()
     try:
         file_structure = configFileStructure()
@@ -100,16 +100,16 @@ def newValidateInspExcel(structure, datamodelwb, fileName):
         wb.remove_sheet(wb.get_sheet_by_name(i))
 
     print("....Start Building....")
-    #print("....Validating 1. Task List Header....")
-    #validate_01header.validate(wb, datamodelwb)
+    print("....Validating 1. Task List Header....")
+    validate_01header.validate(wb, datamodelwb)
     print("....Validating 2. Task List Operation....")
     validate_02operation.validate(wb, datamodelwb)    
-    #print("....Validating 4.1 Task List Planned Service. ....")
-    #validate_05plan.validate(wb, datamodelwb)
-    #print("....Validating 4.2 Task List Unplanned Service....")
-    #validate_04unplan.validate(wb, datamodelwb)    
-    #print("....Validating 5. Inspection Characteristic")
-    #validate_03mic.validate(wb, datamodelwb)
+    print("....Validating 4.1 Task List Planned Service. ....")
+    validate_05plan.validate(wb, datamodelwb)
+    print("....Validating 4.2 Task List Unplanned Service....")
+    validate_04unplan.validate(wb, datamodelwb)    
+    print("....Validating 5. Inspection Characteristic")
+    validate_03mic.validate(wb, datamodelwb)
     print("Output: ", fileName)
     wb.save(fileName)
 
