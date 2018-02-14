@@ -54,6 +54,8 @@ def findCellInColumnByValue(worksheet, col, value, headerRow):
         return None
     for i in range(1, worksheet.max_row+1):
         cell_val = worksheet.cell(row=i, column=col_n).value
+        #print(type(cell_val), type(value))
+        #print(cell_val, value)
         if (cell_val is not None) and (compareCellValue(cell_val, value)):
             return worksheet.cell(row=i, column=col_n)
     return None
@@ -212,6 +214,8 @@ def checkDecimalPlace(num, data):
 def compareCellValue(x, y):
     if isinstance(x, type(y)) or isinstance(y, type(x)):
         return x == y
+    elif type(x) is unicode and type(y) is long:
+        return x.encode('utf-8').strip() == str(y).strip()
     else:
         return str(x).strip() == str(y).strip()
 

@@ -503,6 +503,7 @@ def validate(wb, dataWb, varB, varAdd):
                     x_dict = dict()
                     x_dict[3] = AUSWMENGE1
                     x_dict[2] = real_data
+                    print[x_dict]
                     if find_multiple_in_dict("08-Selected Set", x_dict) is None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
