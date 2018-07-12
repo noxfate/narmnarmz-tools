@@ -62,6 +62,13 @@ def get_decimal_places(ws, row):
         return 0
     return dec
 
+def check_bracket(formula1,formula2):
+    formula = str(formula1)+str(formula2)
+    if formula.count('(')==formula.count(')'):
+        return True
+    else:
+        return False
+
 
 def validate(wb, dataWb, varB, varAdd):
 
@@ -164,8 +171,14 @@ def validate(wb, dataWb, varB, varAdd):
         x_dict = dict()
         x_dict[2] = QPMK_WERKS
         x_dict[3] = VERWMERKM
-        found_QL = find_multiple_in_dict("06-MICQL", x_dict)
-        found_QN = find_multiple_in_dict("06-MICQN", x_dict)
+
+        if x_dict[2] == "QH70":
+            found_QL = find_multiple_in_dict("06-MICQL-LW", x_dict)
+            found_QN = find_multiple_in_dict("06-MICQN-LW", x_dict)
+        else:
+            found_QL = find_multiple_in_dict("06-MICQL", x_dict)
+            found_QN = find_multiple_in_dict("06-MICQN", x_dict)
+
         if len(found_QL) == 0 and len(found_QN) != 0:
             isQL = False
         elif len(found_QL) != 0 and len(found_QN) == 0:
@@ -295,24 +308,60 @@ def validate(wb, dataWb, varB, varAdd):
                     MIC_SPC = get_value_by_row_colname(data_ws, "SPC_IND", i)
                     
                     if varB=="Factory":
-                        Header_SLWBEZ = None
-                        if str(VERWMERKM)[0] == 'F':
-                            found = "FFF0NLAB"
-                            if data != 'FFF0NLAB':
-                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                        elif isNull(Header_SLWBEZ) and isNull(MIC_SPC):
+                        VORNR = get_value_by_row_colname(data_ws, "VORNR", i) #Operation
+                        Header_SLWBEZ = get_01header_SLWBEZ_by_key(dataWb, key_data_dict) #Inspection Point from Header                        
+                        '''
+                        if str(VORNR) == "0020" and str(Header_SLWBEZ) != "FHA":
+                            if str(VERWMERKM)[0] != "F":
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Operation 0020: MIC should be LABWARE"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                            elif str(VERWMERKM)[0] == "F":
+                                if isNull(Header_SLWBEZ) and isNull(MIC_SPC):
+                                    if data == "FHF0N1":
+                                        found = "FHF0N1"
+                                if isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
+                                    if data == "FHF0S1":
+                                        found = "FHF0S1"
+                                if not isNull(Header_SLWBEZ) and isNull(MIC_SPC):
+                                    if data == "FFF0NLAB":
+                                        found = "FFF0NLAB"
+                                if not isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
+                                    if data == "FHF2S1":
+                                        found = "FHF2S1"
+                        '''
+                        if str(VORNR) == "0020" and str(VERWMERKM)[0] != "F" and str(Header_SLWBEZ) == "FHB" :
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Operation 0020: MIC should be LABWARE"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)                    
+                        if isNull(Header_SLWBEZ) and isNull(MIC_SPC):
                             found = find_in_dict("07-Samp", 1, real_data)
                         elif isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
                             found = find_in_dict("07-SampSPC", 1, real_data)
+                        elif not isNull(Header_SLWBEZ) and isNull(MIC_SPC):
+                            if str(Header_SLWBEZ) == "200" or str(Header_SLWBEZ) == "FHB":
+                                found = find_in_dict("07-SampPhy", 1, real_data)
+                            else:
+                                found = find_in_dict("07-SampPoint", 1, real_data)
+                        elif not isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
+                            if str(Header_SLWBEZ) == "200" or str(Header_SLWBEZ) == "FHB":
+                                found = find_in_dict("07-SampPhySPC", 1, real_data)
+                            else:
+                                found = find_in_dict("07-SampPointSPC", 1, real_data)
+                        #Header_SLWBEZ = get_01header_SLWBEZ_by_key(dataWb, key_data_dict)
+                        #if str(VERWMERKM)[0] == 'F':
+                            #found = "FFF0NLAB"
+                            #if data != 'FFF0NLAB':
+                                #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                        #elif isNull(Header_SLWBEZ) and isNull(MIC_SPC):
+                            #found = find_in_dict("07-Samp", 1, real_data)
+                        #elif isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
+                            #found = find_in_dict("07-SampSPC", 1, real_data)
                         #elif not isNull(Header_SLWBEZ) and isNull(MIC_SPC):
                             #found = find_in_dict("07-SampPoint", 1, real_data)
                         #elif not isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
                             #found = find_in_dict("07-SampPointSPC", 1, real_data)
                     elif varB=="Farm":
-                        Header_SLWBEZ = get_01header_SLWBEZ_by_key(dataWb, key_data_dict)
-                        if Header_SLWBEZ == "F01" and isNull(MIC_SPC):
+                        Header_SLWBEZ = str(get_01header_SLWBEZ_by_key(dataWb, key_data_dict))
+                        if (Header_SLWBEZ == "F01" or Header_SLWBEZ == "F12" or Header_SLWBEZ == "200") and isNull(MIC_SPC):
                             found = find_in_dict("07-SampPhy", 1, real_data)
-                        elif Header_SLWBEZ == "F01" and not isNull(MIC_SPC):
+                        elif (Header_SLWBEZ == "F01" or Header_SLWBEZ == "F12" or Header_SLWBEZ == "200") and not isNull(MIC_SPC):
                             found = find_in_dict("07-SampPhySPC", 1, real_data)
                         elif str(VERWMERKM)[0] == 'F':
                             found = "FFF0NLAB"
@@ -338,8 +387,8 @@ def validate(wb, dataWb, varB, varAdd):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PRUEFEINH":
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNull(data) and not isNumeric(data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                #if not isNull(data) and not isNumeric(data):
+                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 if not isNull(data) and data != "1":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "1"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MEAS_UNIT":
@@ -418,7 +467,7 @@ def validate(wb, dataWb, varB, varAdd):
                                     if float(real_data) > float(v2):
                                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Target Value conflict with Upper Limit"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                             except ValueError:
-                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format("SOLLWERT, TOLERANZUN, TOLERANZOB"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                                writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format("Upper, Lower or Target Value"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
 
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "TOLERANZUN":
                 if isQL:
@@ -488,8 +537,14 @@ def validate(wb, dataWb, varB, varAdd):
                     x_dict = dict()
                     x_dict[3] = real_data
                     x_dict[2] = QWERKAUSW
-                    if find_multiple_in_dict("08-Selected Set", x_dict) is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    if str(VERWMERKM)[0] == "F":
+                        if str(x_dict[3]) != "FLABSET1" or str(x_dict[2]) != "QH70":
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect selected set or Plant for selected set"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    else:
+                        selected_set = find_multiple_in_dict("08-Selected Set", x_dict)
+                        #if find_multiple_in_dict("08-Selected Set", x_dict) is None:
+                        if selected_set is None or len(selected_set) == 0:
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if not isNull(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Quantitative: Selected set must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -499,30 +554,36 @@ def validate(wb, dataWb, varB, varAdd):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Qualitative: Plant for Selected set cannot be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if not isNull(data) and len(data) > 4:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    AUSWMENGE1 = get_value_by_row_colname(data_ws, "AUSWMENGE1", i)
-                    x_dict = dict()
-                    x_dict[3] = AUSWMENGE1
-                    x_dict[2] = real_data
-                    print[x_dict]
-                    if find_multiple_in_dict("08-Selected Set", x_dict) is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    #AUSWMENGE1 = get_value_by_row_colname(data_ws, "AUSWMENGE1", i)
+                    #x_dict = dict()
+                    #x_dict[3] = AUSWMENGE1
+                    #x_dict[2] = real_data
+                    #if find_multiple_in_dict("08-Selected Set", x_dict) is None:
+                        #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if not isNull(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Quantitative: Plant for Selected set must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PMETHODE":
+                QMTB_WERKS = get_value_by_row_colname(data_ws, "QMTB_WERKS", i)
+                x_dict = dict()
+                x_dict[3] = real_data #PMETHODE
+                x_dict[2] = QMTB_WERKS               
                 if not isNull(data) and len(data) > 8:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                elif not isNull(data) and get_value_by_row_colname(data_ws, "QMTB_WERKS", i) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Method conflict with Plant for Inspection Method"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                elif not isNull(data) and find_in_dict("09-Method",3, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                elif not isNull(data):
+                    if isNull(QMTB_WERKS):
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Method conflict with Plant for Inspection Method"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    else:
+                        Method = find_multiple_in_dict("09-Method", x_dict)
+                        if Method is None or len(Method) == 0:
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QMTB_WERKS":
                 if not isNull(data) and get_value_by_row_colname(data_ws, "PMETHODE", i) is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Method conflict with Plant for Inspection Method"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 elif not isNull(data) and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                elif not isNull(data) and find_in_dict("09-Method",2, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                #elif not isNull(data) and find_in_dict("09-Method",2, real_data) is None:
+                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PMTVERSION":
                 if not isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -542,9 +603,11 @@ def validate(wb, dataWb, varB, varAdd):
                 if not isNull(data) and len(data) > 40:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SCOPE_IND":
-                if get_value_by_row_colname(data_ws, "SPC_IND", i) is not None:
-                    if not isNull(data) and data != "=":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "="), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                SPC_IND = get_value_by_row_colname(data_ws, "SPC_IND", i)
+                if not isNull(SPC_IND) and data != "=":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("SPC must fixed scope"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                elif not isNull(data) and data != "=":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "="), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QSCORE_AND_SHARE":
                 if not isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -579,12 +642,15 @@ def validate(wb, dataWb, varB, varAdd):
                         if not isNull(data) and len(data) > 60:
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "FORMEL2":
+                FORMEL1 = get_value_by_row_colname(data_ws, "FORMEL1", i)
                 if isQL:
                     if not isNull(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Qualitative: FORMULA_FIELD_2 must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
-                    if get_value_by_row_colname(data_ws, "FORMEL2", i) is not None:
-                        if isNull(data):
-                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Fill formula in FORMEL1 first"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    #if FORMEL1 is None and not isNull(data):
+                       #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Fill formula in FORMEL1 first"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    if FORMEL1 is not None and not isNull(data):    
                         if not isNull(data) and len(data) > 60:
                             writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    if not check_bracket(FORMEL1,data):
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect formula - Check bracket"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)

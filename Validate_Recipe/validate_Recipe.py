@@ -99,8 +99,12 @@ def validate(wb, dataWb, varB):
         x_dict = dict()
         x_dict[2] = QPMK_WERKS
         x_dict[3] = VERWMERKM
-        found_QL = find_multiple_in_dict("06-MICQL", x_dict)
-        found_QN = find_multiple_in_dict("06-MICQN", x_dict)
+        if x_dict[2] == "QH70":
+            found_QL = find_multiple_in_dict("06-MICQL-LW", x_dict)
+            found_QN = find_multiple_in_dict("06-MICQN-LW", x_dict)
+        else:
+            found_QL = find_multiple_in_dict("06-MICQL", x_dict)
+            found_QN = find_multiple_in_dict("06-MICQN", x_dict)
         if len(found_QL) == 0 and len(found_QN) != 0:
             isQL = False
         elif len(found_QL) != 0 and len(found_QN) == 0:
@@ -198,17 +202,24 @@ def validate(wb, dataWb, varB):
                 if not isNull(data) and len(data) > 40:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PMETHODE":
+                QMTB_WERKS = get_value_by_row_colname(data_ws, "QMTB_WERKS", i)
+                x_dict = dict()
+                x_dict[3] = real_data #PMETHODE
+                x_dict[2] = QMTB_WERKS               
                 if not isNull(data) and len(data) > 8:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNull(data) and find_in_dict("09-Method",3, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                elif not isNull(data):
+                    if isNull(QMTB_WERKS):
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Method conflict with Plant for Inspection Method"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                    else:
+                        Method = find_multiple_in_dict("09-Method", x_dict)
+                        if Method is None or len(Method) == 0:
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "QMTB_WERKS":
                 if not isNull(data) and get_value_by_row_colname(data_ws, "PMETHODE", i) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("PMETHODE conflict with QMTB_WERKS"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNull(data) and len(data) > 4:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Method conflict with Plant for Inspection Method"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
+                elif not isNull(data) and len(data) > 4:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                if not isNull(data) and find_in_dict("09-Method",2, real_data) is None:
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PMTVERSION":
                 if not isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
@@ -510,7 +521,9 @@ def validate(wb, dataWb, varB):
                     x_dict = dict()
                     x_dict[3] = real_data
                     x_dict[2] = QWERKAUSW
-                    if find_multiple_in_dict("08-Selected Set", x_dict) is None:
+                    selected_set = find_multiple_in_dict("08-Selected Set", x_dict)
+                    #if find_multiple_in_dict("08-Selected Set", x_dict) is None:
+                    if selected_set is None or len(selected_set) == 0:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if not isNull(data):
@@ -521,12 +534,6 @@ def validate(wb, dataWb, varB):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Qualitative: Plant for Selected set cannot be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                     if not isNull(data) and len(data) > 4:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
-                    AUSWMENGE1 = get_value_by_row_colname(data_ws, "AUSWMENGE1", i)
-                    x_dict = dict()
-                    x_dict[3] = AUSWMENGE1
-                    x_dict[2] = real_data
-                    if find_multiple_in_dict("08-Selected Set", x_dict) is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                 else:
                     if not isNull(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("MIC Quantitative: Plant for Selected set must be blank"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)

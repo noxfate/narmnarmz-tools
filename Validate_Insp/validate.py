@@ -30,6 +30,14 @@ new_unit_path = os.path.join(cur_path,'..', 'resource','Dict', 'unit.xlsx')
 #new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary V1.0.XLSX')
 #val_dict_wb = openExcelFile(new_val_dict_path)
 
+
+def select_wb_dict(Business):
+    if Business=="Factory":
+        new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary V1.0.XLSX')
+    else:
+        new_val_dict_path = os.path.join(cur_path, '..','resource','Dict', '02 Dictionary Farm.xlsx')
+    return openExcelFile(new_val_dict_path)
+
 def find_in_dict(sheetName, colNumber, input):
     global val_dict_wb
     ws = val_dict_wb.get_sheet_by_name(sheetName)
@@ -57,7 +65,6 @@ def find_multiple_in_dict(sheetName, inputDict):
         result = set.intersection(*found)
         return result
     return set()
-
 
 import validate_01header
 import validate_02operation

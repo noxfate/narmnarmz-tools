@@ -18,7 +18,7 @@ def check_same_MatAssign_by_meinh(dataWb, keyDict, meinh_data):
     found.sort()
     row = found[0] if len(found) >= 1 else 0
     if row == 0:
-        return False
+        return None
     MEINS_col = findColumnLetterByColNameAndStartRow(mat_ws, "MEINS", 2)
     MEINS = mat_ws[MEINS_col + str(row)].value
     return MEINS == meinh_data
@@ -135,8 +135,8 @@ def validate(wb, dataWb, varB):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
                 #if isNull(data):
                     #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "01012017":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012017"), i)
+                if data != "01012018":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012018"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STATU":
                 #if isNull(data):
                     #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
@@ -157,17 +157,19 @@ def validate(wb, dataWb, varB):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 elif not isNull(data) and len(data) > 6:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                elif not check_same_MatAssign_by_meinh(dataWb, key_data_dict, real_data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Unit not mapping with material master"), i)
+                else:
+                    chkMatUnit = check_same_MatAssign_by_meinh(dataWb, key_data_dict, real_data)
+                    if chkMatUnit is None:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Not Found Group in Sheet 04-Material Assignment"), i)
+                    elif chkMatUnit is False:
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Unit not mapping with material master"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "KTEXT":
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 if not isNull(data) and len(data) > 40:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SLWBEZ":
-                if isNumeric(data) and not isNull(data):
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                elif not isNull(data) and len(data) > 3:
+                if not isNull(data) and len(data) > 3:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
                 #if not isNull(data) and data != "FH4":
                     #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "FH4"), i)

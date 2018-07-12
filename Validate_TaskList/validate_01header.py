@@ -99,8 +99,8 @@ def validate(wb, dataWb):
                 if data is not None and len(data) > 15:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
-                if data != "01012017":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012017"), i)
+                if data != "01012018":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012018"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PLNAL":
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
@@ -138,30 +138,52 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VERWE":
                 if data != "4":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "4"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VAGRP":
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VAGRP": #Planner Group
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                 elif data is not None and len(data) > 3:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.LENGTH[1].format(field_descr), i)
-                elif data != "Q01" and str(PLNNR)[4:6] != "EC":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Planner Group Conflit with Group structure"), i)
-                elif data is not None and str(PLNNR)[4:6] == "EC":
-                    if data is not None and find_in_dict("01-Planner Group", 1, real_data) is None:
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect Planner Group"), i)
+                elif str(data) == "Q01":
+                    if str(PLNNR)[4] != "A" and str(PLNNR)[4] != "C":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Planner Group Conflit with Group structure"), i)
+                elif str(data) == "Q02":
+                    if str(PLNNR)[4] != "L":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Planner Group Conflit with Group structure"), i)
+                elif data is not None:
+                    chkPlannerGroup = find_in_dict("01-Planner Group", 1, real_data)
+                    if chkPlannerGroup is None and str(PLNNR)[4:6] == "EC":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Planner Group Conflit with Group structure"), i)
+                    elif chkPlannerGroup is not None and str(PLNNR)[4:6] != "EC":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Planner Group Conflit with Group structure"), i)
+                #else:
+                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect Planner Group"), i)    
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "STATU":
                 if data != "4":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "4"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "ANLZU":
                 if str(data) != "0" and str(data) != "1":
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "0 or 1"), i)
-            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SLWBEZ":
+            elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "SLWBEZ": #Inspection Point
                 if data is None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                elif str(PLNNR)[5] == "C" and data != "FHC":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
-                elif str(PLNNR)[5] == "V" and data != "FHD":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
-                elif str(PLNNR)[5] == "D" and data != "FHD":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
-                #elif data is not None and find_in_dict("05-Insp point", 1, real_data) is None:
-                    #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)
+                '''
+                elif str(data) == "FHC":
+                    if str(PLNNR)[5] != "C":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
+                elif str(data) == "FHM":
+                    if str(PLNNR)[5] != "D":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
+                elif str(data) == "FHD":
+                    if str(PLNNR)[5] != "D" and str(PLNNR)[5] != "V":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
+                elif str(data) == "FHO":
+                    if str(PLNNR)[5] != "D" and str(PLNNR)[5] != "V":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
+                elif str(data) == "FHL":
+                    if str(PLNNR)[5] != "D" and str(PLNNR)[5] != "V":
+                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Inspection Point Conflit with Group structure"), i)
+                else:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect Inspection Point"), i)
+                '''
+                if data is not None and find_in_dict("05-Insp point", 1, real_data) is None:
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE_EMPTY[1].format(field_descr), i)

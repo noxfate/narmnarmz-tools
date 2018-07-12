@@ -47,6 +47,7 @@ def validate(wb, dataWb, varB):
         d["WERKS_A"] = WERKS_A
         d["MATNR"] = MATNR
         #cond_1 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
+
         match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
         # print("Cond1", match_cond_1)
 
@@ -61,8 +62,11 @@ def validate(wb, dataWb, varB):
 
 
         DATUV = data_ws[DATUV_col + str(i)].value
-        data = [PLNNR, PLNAL, DATUV, MATNR]
-        if len(match_cond_1) > 1:
+        data = [PLNNR, PLNAL, WERKS_A, MATNR]
+        
+        if MATNR == "#N/A":
+            writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Material cannot be #N/A"), "N="+str(len(match_cond_2)))
+        elif len(match_cond_1) > 1:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
         if len(match_cond_2) < 1:
             writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group not mapping with 01-Header"), "N="+str(len(match_cond_2)))
@@ -77,7 +81,7 @@ def validate(wb, dataWb, varB):
             d["MEINS"] = MEINS
             match_cond_3_2 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
             if len(match_cond_3_1) != len(match_cond_3_2):
-                writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Materials with different units are assigned in same group"), "N=" + str(len(match_cond_3_1) - len(match_cond_3_2)))
+                writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Materials with different units cannot be assigned in same group"), "N=" + str(len(match_cond_3_1) - len(match_cond_3_2)))
             skip_cond_3 = match_cond_3_1.union(match_cond_3_2)
         else:
             match_cond_3_1.discard(i)
@@ -100,7 +104,7 @@ def validate(wb, dataWb, varB):
             report_data = [
                 data_ws[PLNNR_col+str(i)].value, 
                 data_ws[PLNAL_col+str(i)].value,
-                data_ws[DATUV_col+str(i)].value,
+                data_ws[WERKS_A_col+str(i)].value,
                 data_ws[MATNR_col+str(i)].value
             ]
             key_value = [
@@ -138,8 +142,8 @@ def validate(wb, dataWb, varB):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
                 #if isNull(data):
                     #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "01012017":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012017"), i)
+                if data != "01012018":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012018"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "MATNR":
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)

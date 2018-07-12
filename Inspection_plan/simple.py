@@ -374,6 +374,10 @@ def buildInspcharacteristicWorksheet(wb, dataWb):
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "CONFIRMATION_CAT", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
                 task_ws[col+str(i)] = found_data
+            elif j == 62:   
+                letter = findColumnLetterByColNameAndStartRow(data_ws, "FORMULA_IND", DATA_HEADER_ROW)
+                found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value
+                task_ws[col+str(i)] = found_data
             elif j == 33:
                 letter = findColumnLetterByColNameAndStartRow(data_ws, "STICHPRVER", DATA_HEADER_ROW)
                 found_data = data_ws[ letter+ str(DATA_ROW_COUNT+i-1)].value

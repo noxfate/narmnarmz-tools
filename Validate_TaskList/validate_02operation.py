@@ -1,7 +1,7 @@
 from common import *
 from openpyxl.utils import get_column_letter
 import openpyxl
-from validateTL import ValidateError, find_in_dict
+from validateTL import ValidateError, find_in_dict, find_multiple_in_dict
 
 def writeHeaderReport(ws, status, data, errorMsg, debug=None):
     new_row = []
@@ -167,8 +167,8 @@ def validate(wb, dataWb):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                     if data is isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                    if not checkDecimalPlace(1,data):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Number of Capacity must be 1 decimal place"), i)
+                    #if not checkDecimalPlace(1,data):
+                        #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Number of Capacity must be 1 decimal place"), i)
                 elif STEUS == "PM02":
                     if data is not None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
@@ -178,8 +178,8 @@ def validate(wb, dataWb):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                     if data is isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                    if not checkDecimalPlace(1,data):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Work must be 1 decimal place"), i)
+                    #if not checkDecimalPlace(1,data):
+                        #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Work must be 1 decimal place"), i)
                 elif STEUS == "PM02":
                     if data is not None:
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)            
@@ -210,8 +210,8 @@ def validate(wb, dataWb):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
                     if data is isNumeric(data):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.VALUE_TYPE[1].format(field_descr), i)
-                    if not checkDecimalPlace(1,data):
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Duration be 1 decimal place"), i)
+                    #if not checkDecimalPlace(1,data):
+                        #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Duration be 1 decimal place"), i)
                     else:
                         #print(type(str(get_value_by_row_colname(data_ws,"ANZZL",i))))
 
@@ -284,12 +284,22 @@ def validate(wb, dataWb):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "EKGRP": #Purchasing Group
                 if STEUS == "PM01" and data is not None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)
-                elif STEUS == "PM02" and str(PLNNR)[4:6] == "EC":
-                    if  data != "011":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Purchasing Group Conflit with Group structure"), i)
-                elif STEUS == "PM02" and str(PLNNR)[4:6] != "EC":
-                    if  data != "013":
-                        writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Purchasing Group Conflit with Group structure"), i)
+                if STEUS == "PM02":
+                    WERKS = get_value_by_row_colname(data_ws,"WERKS",i)
+                    x_dict = dict()
+                    x_dict[3] = real_data #Purchasing group
+                    x_dict[2] = WERKS
+                    PurGroup = find_multiple_in_dict("11-Pur Group", x_dict)
+                    if PurGroup is None or len(PurGroup) == 0:
+                        if find_in_dict("11-Pur Group", 1, real_data) is None:
+                            if str(PLNNR)[4:6] == "EC":
+                                if  data != "011":
+                                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Purchasing Group Conflit with Group structure"), i)
+                            elif str(PLNNR)[4:6] != "EC":
+                                if  data != "013":
+                                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Purchasing Group Conflit with Group structure"), i)
+                        else:
+                            writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Purchasing Group Conflit with Group structure"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "LIFNR": #Vendor
                 if data is not None:
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NULL[1].format(field_descr), i)

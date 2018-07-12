@@ -153,8 +153,8 @@ def validate(wb, dataWb, varB):
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "DATUV":
                 #if isNull(data):
                     #writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
-                if data != "01012017":
-                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012017"), i)
+                if data != "01012018":
+                    writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.FIXED_VALUE[1].format(field_descr, "01012018"), i)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "VORNR":
                 if isNull(data):
                     writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.NOT_NULL[1].format(field_descr), i)
