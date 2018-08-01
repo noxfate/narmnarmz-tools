@@ -9,3 +9,4 @@ Inspection_plan/build/*
 Inspection_plan/dist/*
 
 .idea/*
+*.vscode
