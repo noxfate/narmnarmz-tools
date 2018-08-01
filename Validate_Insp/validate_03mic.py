@@ -96,7 +96,6 @@ def validate(wb, dataWb, varB, varAdd):
 
             data = [PLNNR, PLNAL, VORNR, MERKNR]
             if (PLNNR is None or PLNAL is None or VORNR is None or MERKNR is None or len(str(VORNR))!=4 or len(str(MERKNR))!=4):
-                #writeHeaderReport(active_ws, "WARNING", data, ValidateError.UNDEFINED[1].format("Some keys are null and will be skip"), "row="+str(i))
                 continue
 
             d = dict()
@@ -105,27 +104,19 @@ def validate(wb, dataWb, varB, varAdd):
             d["VORNR"] = VORNR
             d["MERKNR"] = MERKNR
             match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
-            #cond_1 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
-            # print("Cond1", match_cond_1)
 
-            #opr_ws = dataWb.get_sheet_by_name("02 - Operation")
+
             d = dict()
             d["PLNNR"] = PLNNR
             d["PLNAL"] = PLNAL
             d["VORNR"] = VORNR
             match_cond_2 = find_by_keys(opr_ws, 2, 2, d)
-            #cond_2 = is_key_exist(opr_ws, 2, 2, d)
-            # print("Cond2", match_cond_2)
+
     		
             if len(match_cond_1) > 1:
                 writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "N="+str(len(match_cond_1)))
             if len(match_cond_2) < 1:
-                writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group does not exist in 02 - Operation"), "N="+str(len(match_cond_2)))
-            #if cond_1:
-                #writeHeaderReport(active_ws, "ERROR", data, ValidateError.DUPLICATE_KEY[1], "row="+str(i))
-
-            #if not cond_2:
-                #writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group does not exist in 02 - Operation"), "row="+str(i))
+                writeHeaderReport(active_ws, "ERROR", data, ValidateError.UNDEFINED[1].format("Group does not exist in 02 - Operation"), "N="+str(len(match_cond_2)))     
         
         print("Fin Additional Condition")
     

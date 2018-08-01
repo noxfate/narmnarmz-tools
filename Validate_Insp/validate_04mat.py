@@ -46,17 +46,13 @@ def validate(wb, dataWb, varB):
         d["PLNAL"] = PLNAL
         d["WERKS_A"] = WERKS_A
         d["MATNR"] = MATNR
-        #cond_1 = check_duplicate_key(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
-        match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)
-        # print("Cond1", match_cond_1)
+        match_cond_1 = find_by_keys(data_ws, DATA_HEADER_ROW, DATA_ROW_COUNT, d)    
 
         header_ws = dataWb.get_sheet_by_name("01 - Header")
         d = dict()
         d["PLNNR"] = PLNNR
         d["PLNAL"] = PLNAL
-        #cond_2 = is_key_exist(header_ws, 2, 2, d)
         match_cond_2 = find_by_keys(header_ws, 2, 2, d)
-        # print("Cond2", match_cond_2)
 
 
 

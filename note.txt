@@ -1,0 +1,5 @@
+Tune-up
+
+1. Storing resource\Dict in some datatype first and then use that instead
+2. findColumnLettersByColNameListAndStartRow(worksheet, nameList, startRow) - to reduce the time system have to open up the excel object
+3. Store up iterated row data as much as possible

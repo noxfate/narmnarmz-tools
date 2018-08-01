@@ -21,7 +21,7 @@ def openDialog():
     return fileName
 
 def openExcelFile(filePath):
-    os.chdir(os.path.dirname(filePath))
+    os.chdir(os.path.dirname(filePath), read_only=True)
     wb = openpyxl.load_workbook(os.path.basename(filePath))
     return wb
 
