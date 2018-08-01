@@ -359,6 +359,8 @@ def validate(wb, dataWb, varB, varAdd):
                             #found = find_in_dict("07-SampPointSPC", 1, real_data)
                     elif varB=="Farm":
                         Header_SLWBEZ = str(get_01header_SLWBEZ_by_key(dataWb, key_data_dict))
+                        if Header_SLWBEZ == "None":
+                            Header_SLWBEZ = None
                         if (Header_SLWBEZ == "F01" or Header_SLWBEZ == "F12" or Header_SLWBEZ == "200") and isNull(MIC_SPC):
                             found = find_in_dict("07-SampPhy", 1, real_data)
                         elif (Header_SLWBEZ == "F01" or Header_SLWBEZ == "F12" or Header_SLWBEZ == "200") and not isNull(MIC_SPC):
@@ -369,12 +371,16 @@ def validate(wb, dataWb, varB, varAdd):
                                 writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
                         elif isNull(Header_SLWBEZ) and isNull(MIC_SPC):
                             found = find_in_dict("07-Samp", 1, real_data)
+                            #print("07-Samp")
                         elif isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
                             found = find_in_dict("07-SampSPC", 1, real_data)
+                            #print("07-SampSPC")
                         elif not isNull(Header_SLWBEZ) and isNull(MIC_SPC):
                             found = find_in_dict("07-SampPoint", 1, real_data)
+                            #print("07-SampPoint")
                         elif not isNull(Header_SLWBEZ) and not isNull(MIC_SPC):
                             found = find_in_dict("07-SampPointSPC", 1, real_data)
+                            #print("07-SampPointSPC")
                     if isNull(found):
                         writeHeaderReport(active_ws, "ERROR", report_data, ValidateError.UNDEFINED[1].format("Incorrect sampling procedure"), i, data_ws.cell(row=DATA_HEADER_ROW, column=j).value, isQL)
             elif data_ws.cell(row=DATA_HEADER_ROW, column=j).value == "PROBEMGEH":
