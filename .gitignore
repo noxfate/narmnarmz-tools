@@ -3,6 +3,7 @@
 !SPEC*.xlsx
 !resource/Dict/*
 !resource/SPEC/*
+!resource/template/*
 *.spec
 *.pyc
 Inspection_plan/build/*
