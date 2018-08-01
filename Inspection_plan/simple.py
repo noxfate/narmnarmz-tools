@@ -38,7 +38,7 @@ def composeFileName(fileFullPath):
     return "UPL_"+os.path.basename(fileFullPath)
 
 def newSimpleInspectionPlanExcel(structure, datamodelwb, fileName):
-    wb = openpyxl.Workbook(write_only=True)
+    wb = openpyxl.Workbook()
     old_sheet_list = wb.get_sheet_names()
     for i in structure:
         wb.create_sheet(title=i)

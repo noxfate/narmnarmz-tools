@@ -108,7 +108,7 @@ def composeFileName(fileFullPath, varSheet):
     return "ERR_"+sheet+"_"+os.path.basename(fileFullPath)
 
 def newValidateInspExcel(structure, datamodelwb, fileName,varSheet, varB, varAdd):
-    wb = openpyxl.Workbook(write_only=True)
+    wb = openpyxl.Workbook()
     old_sheet_list = wb.get_sheet_names()
     for i in structure:
         wb.create_sheet(title=i)
